@@ -1,16 +1,21 @@
-export type product = {
+import { ICategory } from '../models/CategorySchema'
+
+export interface productType extends Document {
   title: string
   slug: string
   description: string
   price: number
   countInStock: number
   sold: number
+  image: string | undefined
+  category: ICategory['_id']
+  createdAt?: string
+  updatedAt?: string
 }
 
-export type productInput = Omit<product, 'slug' | 'sold'>
+export type productInputType = Omit<productType, 'slug' | 'sold'>
 
-// to solve the problem with null values
-export type productUpdate = Partial<productInput> | null
+export type productUpdateType = Partial<productInputType> | null
 
 export interface Error {
   message?: string

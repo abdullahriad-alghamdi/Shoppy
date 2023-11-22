@@ -1,17 +1,26 @@
 import { NextFunction, Request, Response } from 'express'
-import slugify from 'slugify'
 
-import { Product } from '../models/productSchema'
-import { product, productUpdate } from '../types/productTypes'
+import { productUpdateType } from '../types/productTypes'
+import {
+  createNewProduct,
+  deleteProduct,
+  findProduct,
+  paginateProducts,
+  updateProduct,
+} from '../services/ProductService'
 
 // Get : /products -> get all products
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const products = await Product.find()
-    console.log('products', products)
+    let page = Number(req.query.page) || undefined
+    const limit = Number(req.query.limit) || undefined
+    const { products, totalPages, currentPage } = await paginateProducts(page, limit)
+
     res.json({
       message: 'Get all products successfully',
       payload: products,
+      totalPages,
+      currentPage,
     })
   } catch (error) {
     next(error)
@@ -21,13 +30,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 // Get : /products/:slug -> get product by slug
 export const getProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product = await Product.findOne({ slug: req.params.slug })
-    if (!product) {
-      throw {
-        message: 'Product not found',
-        statusCode: 404,
-      }
-    }
+    const product = await findProduct(req.params.slug)
     res.json({
       message: 'Get a single product by slug successfully',
       payload: product,
@@ -40,46 +43,21 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
 // post : /products -> create new product
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title, description, price, countInStock, sold } = req.body
-    const slugifiedTitle = slugify(title, { lower: true })
-    const product: product = await Product.create({
-      title,
-      slug: slugifiedTitle ? slugifiedTitle : '',
-      description,
-      price,
-      countInStock,
-      sold,
-    })
-    console.log('product', product)
-    if (!product) {
-      throw {
-        message: 'Sorry you cannot create product, product not found',
-        statusCode: 400,
-      }
-    }
-
-    res.json({
-      message: 'Create product successfully',
-      payload: product,
-    })
-  } catch (error) {
-    next(error)
+    const img = req.file?.path
+    await createNewProduct(req.body, img)
+    res.status(201).json({ message: 'file added successfully' })
+  } catch (err) {
+    next(err)
   }
 }
 
 // Put : /products/:slug -> update product by slug
 export const updateProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product: productUpdate = await Product.findOneAndUpdate(
-      { slug: req.params.slug },
-      req.body,
-      { new: true }
-    )
-    //todo  TODO  update the slug if the title is updated
-
+    const product: productUpdateType = await updateProduct(req.params.slug, req.body)
     if (!product) {
       throw {
-        message: 'Sorry you cannot update, product not found',
+        message: 'Product not found',
         statusCode: 404,
       }
     }
@@ -95,13 +73,7 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
 // Delete : /products/:slug -> delete product by slug
 export const deleteProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product = await Product.findOneAndDelete({ slug: req.params.slug })
-    if (!product) {
-      throw {
-        message: 'Sorry you cannot delete, product not found',
-        statusCode: 404,
-      }
-    }
+    const product = await deleteProduct(req.params.slug)
     res.json({
       message: 'Delete product by slug successfully',
       payload: product,

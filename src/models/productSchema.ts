@@ -1,4 +1,6 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose'
+
+import { productType } from '../types/productTypes'
 
 const productSchema = new Schema(
   {
@@ -7,8 +9,8 @@ const productSchema = new Schema(
       required: true,
       unique: true,
       trim: true,
-      minlength: [3, "Title cannot be less than 3 characters"],
-      maxlength: [100, "Title cannot be more than 100 characters"],
+      minlength: [3, 'Title cannot be less than 3 characters'],
+      maxlength: [100, 'Title cannot be more than 100 characters'],
     },
     slug: {
       type: String,
@@ -20,8 +22,8 @@ const productSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      minlength: [10, "Description cannot be less than 10 characters"],
-      maxlength: [1000, "Description cannot be more than 1000 characters"],
+      minlength: [10, 'Description cannot be less than 10 characters'],
+      maxlength: [1000, 'Description cannot be more than 1000 characters'],
     },
     price: {
       type: Number,
@@ -37,8 +39,17 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
+    },
+    image: {
+      type: String,
+      default: '../public/images/product/default.png',
+    },
   },
   { timestamps: true }
-);
+)
 
-export const Product = model("Products", productSchema);
+export default model<productType>('Product', productSchema)

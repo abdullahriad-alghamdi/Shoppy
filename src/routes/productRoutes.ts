@@ -1,28 +1,28 @@
-import { Router } from "express";
-
+import { Router } from 'express'
+import { upload } from '../middlewares/UploadFile'
 import {
   createProduct,
   deleteProductBySlug,
   getAllProducts,
   getProductBySlug,
   updateProductBySlug,
-} from "../controllers/productController";
+} from '../controllers/productController'
 
-const router: Router = Router();
+const router: Router = Router()
 
 // Get : /products -> get all products
-router.get("/", getAllProducts);
+router.get('/', getAllProducts)
 
 // Get : /products/:slug -> get product by slug
-router.get("/:slug", getProductBySlug);
+router.get('/:slug', getProductBySlug)
 
 // post : /products -> create new product
-router.post("/", createProduct);
+router.post('/', upload.single('image'), createProduct)
 
 // put : /products/:slug -> update product by slug
-router.put("/:slug", updateProductBySlug);
+router.put('/:slug', updateProductBySlug)
 
 // delete : /products/:slug -> delete product by slug
-router.delete("/:slug", deleteProductBySlug);
+router.delete('/:slug', deleteProductBySlug)
 
-export default router;
+export default router
