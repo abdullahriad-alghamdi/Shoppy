@@ -1,16 +1,7 @@
-import { Document } from 'mongodb'
 import { Schema, model } from 'mongoose'
+import { ICategory } from '../types/productTypes'
 
-export interface ICategory extends Document {
-  _id: string
-  title: string
-  slug: string
-  createdAt: string
-  updatedAt: string
-  __v: number
-}
-
-const CategorySchema = new Schema(
+const categorySchema = new Schema(
   {
     title: {
       type: String,
@@ -30,4 +21,4 @@ const CategorySchema = new Schema(
 )
 
 //model/collection
-export const Category = model<ICategory>('Category', CategorySchema)
+export const Category = model<ICategory>('Category', categorySchema)

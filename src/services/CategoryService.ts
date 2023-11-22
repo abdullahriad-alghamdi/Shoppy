@@ -1,6 +1,7 @@
 import slugify from 'slugify'
-import { Category } from '../models/CategorySchema'
+
 import { createHTTPError } from '../util/CreateError'
+import { Category } from '../models/CategorySchema'
 
 // getting all Category
 export const getCategories = async () => {

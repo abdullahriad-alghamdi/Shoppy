@@ -1,5 +1,11 @@
-import { ICategory } from '../models/CategorySchema'
-
+export interface ICategory extends Document {
+  _id: string
+  title: string
+  slug: string
+  createdAt: string
+  updatedAt: string
+  __v: number
+}
 export interface productType extends Document {
   title: string
   slug: string
