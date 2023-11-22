@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import mongoose from 'mongoose'
 
-import {
-  getCategories,
-  findCategory,
-  createNewCategory,
-  updateCategory,
-  deleteCategory,
-} from '../services/CategoryService'
 import { createHTTPError } from '../util/CreateError'
+import {
+  createNewCategory,
+  deleteCategory,
+  findCategory,
+  getCategories,
+  updateCategory,
+} from '../services/categoryService'
 
 // GET : /categories -> returned all category
 export const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
