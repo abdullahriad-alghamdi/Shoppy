@@ -7,7 +7,7 @@ import {
   findProduct,
   paginateProducts,
   updateProduct,
-} from '../services/ProductService'
+} from '../services/productService'
 
 // Get : /products -> get all products
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
