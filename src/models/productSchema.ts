@@ -1,5 +1,7 @@
+// External Dependencies and Modules
 import { Schema, model } from 'mongoose'
 
+// Internal Modules or Files
 import { productType } from '../types/productTypes'
 
 const productSchema = new Schema(

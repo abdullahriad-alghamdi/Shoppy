@@ -1,4 +1,7 @@
+// External Dependencies and Modules
 import { Schema, model } from 'mongoose'
+
+// Internal Modules or Files
 import { ICategory } from '../types/productTypes'
 
 const categorySchema = new Schema(

@@ -1,8 +1,13 @@
+/*======= External Dependencies and Modules =======*/
 import slugify from 'slugify'
 
+/*======= Internal Modules or Files =======*/
+// Models
 import Product from '../models/productSchema'
-import { productType, productUpdateType } from '../types/productTypes'
+// Utils
 import { createHTTPError } from '../utils/createError'
+// Types
+import { productType, productUpdateType } from '../types/productTypes'
 
 // paginating products with a limit of 3 products per page
 export const paginateProducts = async (page: number = 1, limit: number = 3) => {

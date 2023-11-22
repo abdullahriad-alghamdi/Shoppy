@@ -1,5 +1,8 @@
+/*======= External Dependencies and Modules =======*/
 import { Router } from 'express'
 
+/*======= Internal Modules or Files =======*/
+// Controllers
 import {
   getAllCategory,
   getCategoryBySlug,

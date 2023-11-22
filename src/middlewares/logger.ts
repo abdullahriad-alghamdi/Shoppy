@@ -1,4 +1,7 @@
+/*======= Node.js Core Modules =======*/
 import fs from 'fs'
+
+/*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
 
 const myLogger = (req: Request, res: Response, next: NextFunction) => {

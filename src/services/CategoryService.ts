@@ -1,7 +1,11 @@
+/*======= External Dependencies and Modules =======*/
 import slugify from 'slugify'
 
-import { createHTTPError } from '../utils/createError'
+/*======= Internal Modules or Files =======*/
+// Models
 import { Category } from '../models/categorySchema'
+// Utils
+import { createHTTPError } from '../utils/createError'
 
 // getting all Category
 export const getCategories = async () => {

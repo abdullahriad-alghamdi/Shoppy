@@ -1,5 +1,5 @@
+// External Dependencies and Modules
 import mongoose from 'mongoose'
-
 
 const userSchema = new mongoose.Schema({
   name: {

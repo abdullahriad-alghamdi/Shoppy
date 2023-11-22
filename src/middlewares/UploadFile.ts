@@ -1,5 +1,8 @@
-import multer from 'multer'
+/*======= Node.js Core Modules =======*/
 import path from 'path'
+
+/*======= External Dependencies and Modules =======*/
+import multer from 'multer'
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

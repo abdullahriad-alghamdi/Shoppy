@@ -1,7 +1,11 @@
+/*======= External Dependencies and Modules =======*/
 import { Request, Response, NextFunction } from 'express'
 import mongoose from 'mongoose'
 
+/*======= Internal Modules or Files =======*/
+// Utils
 import { createHTTPError } from '../utils/createError'
+// Services
 import {
   createNewCategory,
   deleteCategory,

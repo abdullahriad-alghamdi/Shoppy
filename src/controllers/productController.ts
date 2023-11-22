@@ -1,6 +1,10 @@
+/*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
 
+/*======= Internal Modules or Files =======*/
+// Types
 import { productUpdateType } from '../types/productTypes'
+// Services
 import {
   createNewProduct,
   deleteProduct,
@@ -12,8 +16,10 @@ import {
 // Get : /products -> get all products
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let page = Number(req.query.page) || undefined
-    const limit = Number(req.query.limit) || undefined
+    const data = req.query
+
+    let page = Number(data.page) || undefined
+    const limit = Number(data.limit) || undefined
     const { products, totalPages, currentPage } = await paginateProducts(page, limit)
 
     res.json({
@@ -30,7 +36,9 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 // Get : /products/:slug -> get product by slug
 export const getProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product = await findProduct(req.params.slug)
+    const params = req.params
+
+    const product = await findProduct(params.slug)
     res.json({
       message: 'Get a single product by slug successfully',
       payload: product,
@@ -43,8 +51,11 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
 // post : /products -> create new product
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const img = req.file?.path
-    await createNewProduct(req.body, img)
+    const file = req.file
+    const img = file?.path
+    const data = req.body
+
+    await createNewProduct(data, img)
     res.status(201).json({ message: 'file added successfully' })
   } catch (err) {
     next(err)
@@ -54,7 +65,10 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 // Put : /products/:slug -> update product by slug
 export const updateProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product: productUpdateType = await updateProduct(req.params.slug, req.body)
+    const params = req.params
+    const data = req.body
+
+    const product: productUpdateType = await updateProduct(params.slug, data)
     if (!product) {
       throw {
         message: 'Product not found',
@@ -73,7 +87,9 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
 // Delete : /products/:slug -> delete product by slug
 export const deleteProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const product = await deleteProduct(req.params.slug)
+    const params = req.params
+
+    const product = await deleteProduct(params.slug)
     res.json({
       message: 'Delete product by slug successfully',
       payload: product,

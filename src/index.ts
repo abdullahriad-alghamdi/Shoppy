@@ -1,15 +1,21 @@
+/*======= External Dependencies and Modules =======*/
 import express, { Application } from 'express'
 import morgan from 'morgan'
 
+/*======= Internal Modules or Files =======*/
+// External Configuration
 import { dev } from './config'
 import { connectDB } from './config/db'
+
+// Middlewares
 import { errorHandler } from './middlewares/errorHandler'
 
-import productRoutes from './routes/productRoutes'
+// Routes
 import categoryRoutes from './routes/categoryRoutes'
+import productRoutes from './routes/productRoutes'
 
 const app: Application = express()
-const port: number = dev.app.port
+const port: string | number = dev.app.port
 
 app.listen(port, () => {
   console.log(`Server listening on port http://localhost:${port}`)
