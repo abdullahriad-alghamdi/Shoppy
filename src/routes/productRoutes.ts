@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { upload } from '../middlewares/UploadFile'
+
+import { upload } from '../middlewares/uploadFile'
 import {
   createProduct,
   deleteProductBySlug,

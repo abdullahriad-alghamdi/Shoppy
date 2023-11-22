@@ -6,7 +6,7 @@ import { connectDB } from './config/db'
 import { errorHandler } from './middlewares/errorHandler'
 
 import productRoutes from './routes/productRoutes'
-import categoryRoutes from './routes/CategoryRoutes'
+import categoryRoutes from './routes/categoryRoutes'
 
 const app: Application = express()
 const port: number = dev.app.port
