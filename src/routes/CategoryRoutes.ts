@@ -6,7 +6,7 @@ import {
   createCategory,
   updateCategoryBySlug,
   deleteCategoryBySlug,
-} from '../controllers/CategoryController'
+} from '../controllers/categoryController'
 
 const router = Router()
 // GET : /category -> returned all category
