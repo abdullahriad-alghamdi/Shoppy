@@ -1,6 +1,6 @@
 import slugify from 'slugify'
 
-import { createHTTPError } from '../util/CreateError'
+import { createHTTPError } from '../utils/createError'
 import { Category } from '../models/categorySchema'
 
 // getting all Category

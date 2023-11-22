@@ -2,7 +2,7 @@ import slugify from 'slugify'
 
 import Product from '../models/productSchema'
 import { productType, productUpdateType } from '../types/productTypes'
-import { createHTTPError } from '../util/CreateError'
+import { createHTTPError } from '../utils/createError'
 
 // paginating products with a limit of 3 products per page
 export const paginateProducts = async (page: number = 1, limit: number = 3) => {

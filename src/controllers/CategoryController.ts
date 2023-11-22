@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import mongoose from 'mongoose'
 
-import { createHTTPError } from '../util/CreateError'
+import { createHTTPError } from '../utils/createError'
 import {
   createNewCategory,
   deleteCategory,
