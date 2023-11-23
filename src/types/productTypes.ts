@@ -8,7 +8,7 @@ export interface productType extends Document {
   price: number
   countInStock: number
   sold: number
-  image: string | undefined
+  image: string
   category: ICategory['_id']
   createdAt?: string
   updatedAt?: string

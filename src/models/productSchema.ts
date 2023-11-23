@@ -27,6 +27,7 @@ const productSchema = new Schema(
       trim: true,
       minlength: [10, 'Description cannot be less than 10 characters'],
       maxlength: [1000, 'Description cannot be more than 1000 characters'],
+      default: 'no description provided',
     },
     price: {
       type: Number,
@@ -37,6 +38,7 @@ const productSchema = new Schema(
     countInStock: {
       type: Number,
       required: true,
+      default: 0,
     },
     sold: {
       type: Number,
@@ -50,6 +52,7 @@ const productSchema = new Schema(
     image: {
       type: String,
       default: dev.app.defaultImagePath,
+      required: true,
     },
   },
   { timestamps: true }
