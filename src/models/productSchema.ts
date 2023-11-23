@@ -1,8 +1,9 @@
-// External Dependencies and Modules
+/*======= External Dependencies and Modules =======*/
 import { Schema, model } from 'mongoose'
 
-// Internal Modules or Files
+/*======= Internal Modules or Files =======*/
 import { productType } from '../types/productTypes'
+import { dev } from '../config'
 
 const productSchema = new Schema(
   {
@@ -48,7 +49,7 @@ const productSchema = new Schema(
     },
     image: {
       type: String,
-      default: '../public/images/product/default.png',
+      default: dev.app.defaultImagePath,
     },
   },
   { timestamps: true }

@@ -13,6 +13,7 @@ import { errorHandler } from './middlewares/errorHandler'
 // Routes
 import categoryRoutes from './routes/categoryRoutes'
 import productRoutes from './routes/productRoutes'
+import userRoutes from './routes/userRoutes'
 
 const app: Application = express()
 const port: string | number = dev.app.port
@@ -27,6 +28,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/products', productRoutes)
 app.use('/categories', categoryRoutes)
+app.use('/users', userRoutes)
 
 app.get('/', (req, res) => {
   res.send('Welcome to our E-commerce API')

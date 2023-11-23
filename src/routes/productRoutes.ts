@@ -3,7 +3,7 @@ import { Router } from 'express'
 
 /*======= Internal Modules or Files =======*/
 // Controllers
-import { upload } from '../middlewares/uploadFile'
+import { uploadProductImg } from '../middlewares/uploadFile'
 import {
   createProduct,
   deleteProductBySlug,
@@ -21,10 +21,10 @@ router.get('/', getAllProducts)
 router.get('/:slug', getProductBySlug)
 
 // post : /products -> create new product
-router.post('/', upload.single('image'), createProduct)
+router.post('/', uploadProductImg.single('image'), createProduct)
 
 // put : /products/:slug -> update product by slug
-router.put('/:slug', updateProductBySlug)
+router.put('/:slug', uploadProductImg.single('image'), updateProductBySlug)
 
 // delete : /products/:slug -> delete product by slug
 router.delete('/:slug', deleteProductBySlug)

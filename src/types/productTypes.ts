@@ -1,3 +1,4 @@
+/*======= External Dependencies and Modules =======*/
 import { ICategory } from './categoryTypes'
 
 export interface productType extends Document {
