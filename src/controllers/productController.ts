@@ -1,3 +1,4 @@
+import fs from 'fs/promises'
 /*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
 
@@ -63,8 +64,9 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     const img = file?.path
     const data = req.body
 
-    await createNewProduct(data, img)
-    res.status(201).json({ message: 'file added successfully' })
+    const product = await createNewProduct(data, img)
+
+    res.status(201).json({ message: 'Product added successfully', payload: product })
   } catch (err) {
     next(err)
   }
@@ -75,6 +77,14 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
   try {
     const { slug } = req.params
     const data = req.body
+    if (req.file) {
+      data.image = req.file.path
+      // to delete the image from the public folder
+      const product = await findProduct(slug)
+      if (product.image !== 'public/images/default.png') {
+        fs.unlink(product.image)
+      }
+    }
 
     const product: productUpdateType = await updateProduct(slug, data)
     if (!product) {
