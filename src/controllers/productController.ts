@@ -20,7 +20,15 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 
     let page = Number(data.page) || undefined
     const limit = Number(data.limit) || undefined
-    const { products, totalPages, currentPage } = await paginateProducts(page, limit)
+    const maxPrice = Number(data.maxPrice) || undefined
+    const minPrice = Number(data.minPrice) || undefined
+
+    const { products, totalPages, currentPage } = await paginateProducts(
+      page,
+      limit,
+      maxPrice,
+      minPrice
+    )
 
     res.json({
       message: 'Get all products successfully',
@@ -65,10 +73,10 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 // Put : /products/:slug -> update product by slug
 export const updateProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const params = req.params
+    const { slug } = req.params
     const data = req.body
 
-    const product: productUpdateType = await updateProduct(params.slug, data)
+    const product: productUpdateType = await updateProduct(slug, data)
     if (!product) {
       throw {
         message: 'Product not found',
@@ -87,9 +95,9 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
 // Delete : /products/:slug -> delete product by slug
 export const deleteProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const params = req.params
+    const { slug } = req.params
 
-    const product = await deleteProduct(params.slug)
+    const product = await deleteProduct(slug)
     res.json({
       message: 'Delete product by slug successfully',
       payload: product,

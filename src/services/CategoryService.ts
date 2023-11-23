@@ -9,8 +9,8 @@ import { createHTTPError } from '../utils/createError'
 
 // getting all Category
 export const getCategories = async () => {
-  const Categories = await Category.find()
-  return Categories
+  const categories = await Category.find()
+  return categories
 }
 
 // finding a single Category by slug
@@ -26,7 +26,7 @@ export const findCategory = async (slug: string) => {
 export const createNewCategory = async (title: string) => {
   const exist = await Category.exists({ title: title })
   if (exist) {
-    throw createHTTPError(409, 'Category is exist')
+    throw createHTTPError(409, 'Category already exist')
   }
   const newCategory = new Category({
     title: title,

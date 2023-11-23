@@ -10,7 +10,12 @@ import { createHTTPError } from '../utils/createError'
 import { productType, productUpdateType } from '../types/productTypes'
 
 // paginating products with a limit of 3 products per page
-export const paginateProducts = async (page: number = 1, limit: number = 3) => {
+export const paginateProducts = async (
+  page: number = 1,
+  limit: number = 3,
+  maxPrice: number = 1000000,
+  minPrice: number = 0
+) => {
   const skip = (page - 1) * limit
   const count = await Product.countDocuments()
   const totalPages = Math.ceil(count / limit)
@@ -18,7 +23,8 @@ export const paginateProducts = async (page: number = 1, limit: number = 3) => {
   if (page > totalPages) {
     page = totalPages
   }
-  const products = await Product.find({ price: { $not: { $gt: 10000 } } })
+
+  const products = await Product.find({ price: { $lte: maxPrice, $gte: minPrice } })
     .skip(skip)
     .limit(limit)
     .populate('category')

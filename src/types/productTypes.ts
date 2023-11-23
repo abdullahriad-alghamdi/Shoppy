@@ -1,11 +1,5 @@
-export interface ICategory extends Document {
-  _id: string
-  title: string
-  slug: string
-  createdAt: string
-  updatedAt: string
-  __v: number
-}
+import { ICategory } from './categoryTypes'
+
 export interface productType extends Document {
   title: string
   slug: string

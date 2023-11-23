@@ -1,9 +1,9 @@
-// External Dependencies and Modules
+/*======= External Dependencies and Modules =======*/
 import { Schema, model } from 'mongoose'
 
-// Internal Modules or Files
-import { ICategory } from '../types/productTypes'
-
+/*======= Internal Modules or Files =======*/
+// Types
+import { ICategory } from '../types/categoryTypes'
 const categorySchema = new Schema(
   {
     title: {
