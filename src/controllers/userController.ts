@@ -1,6 +1,6 @@
 /*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
+import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 /*======= Internal Modules or Files =======*/
@@ -57,5 +57,32 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
     })
   } catch (error) {
     next(error)
+  }
+}
+
+//Handle errors token
+export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.body.token
+    if (!token) {
+      throw createHTTPError(404, 'Please provide a token')
+    }
+    const decoded = jwt.verify(token, dev.app.jwtUserActivationKey)
+    if (!decoded) {
+      throw createHTTPError(404, 'Invalid token')
+    }
+    await User.create(decoded)
+
+    res.status(201).json({
+      message: 'user registered successfully',
+    })
+  } catch (error) {
+    if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
+      const errorMessage =
+        error instanceof TokenExpiredError ? 'Token has expired' : 'Invalid token'
+      next(createHTTPError(401, errorMessage))
+    } else {
+      next(error)
+    }
   }
 }

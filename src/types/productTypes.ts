@@ -10,8 +10,8 @@ export interface productType extends Document {
   sold: number
   image: string
   category: ICategory['_id']
-  createdAt?: string
-  updatedAt?: string
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export type productInputType = Omit<productType, 'slug' | 'sold'>

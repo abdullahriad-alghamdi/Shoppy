@@ -10,7 +10,7 @@ const myLogger = (req: Request, res: Response, next: NextFunction) => {
   const date = currentDate.toLocaleDateString()
   const time = currentDate.toLocaleTimeString()
 
-  const msg = `Method: ${req.method}, Path: ${req.path}, Date: ${date}, Time: ${time}\n`
+  const msg = `Method: ${req.method}, Status: ${res.statusCode}, Path: ${req.path}, Date: ${date}, Time: ${time}\n`
 
   fs.appendFile(filePath, msg, (err) => {
     if (err) {

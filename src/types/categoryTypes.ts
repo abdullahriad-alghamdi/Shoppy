@@ -5,7 +5,7 @@ export interface ICategory extends Document {
   _id: string
   title: string
   slug: string
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
   __v: number
 }

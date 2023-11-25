@@ -24,8 +24,8 @@ export const findCategory = async (slug: string) => {
 
 // creating new Category
 export const createNewCategory = async (title: string) => {
-  const exist = await Category.exists({ title: title })
-  if (exist) {
+  const isCategoryExist = await Category.exists({ title: title })
+  if (isCategoryExist) {
     throw createHTTPError(409, 'Category already exist')
   }
   const newCategory = new Category({
@@ -38,8 +38,8 @@ export const createNewCategory = async (title: string) => {
 
 // updating a Category by slug
 export const updateCategory = async (slug: string, title: string) => {
-  const exist = await Category.exists({ slug: slug })
-  if (!exist) {
+  const isCategoryExist = await Category.exists({ slug: slug })
+  if (!isCategoryExist) {
     throw createHTTPError(404, `Category with slug ${slug} does not exist`)
   }
   const updatedCategory = await Category.findOneAndUpdate(
@@ -52,8 +52,8 @@ export const updateCategory = async (slug: string, title: string) => {
 
 // deleting a Category by slug
 export const deleteCategory = async (slug: string) => {
-  const exist = await Category.exists({ slug: slug })
-  if (!exist) {
+  const isCategoryExist = await Category.exists({ slug: slug })
+  if (!isCategoryExist) {
     throw createHTTPError(404, `Category with slug ${slug} does not exist`)
   }
   await Category.deleteOne({ slug: slug })

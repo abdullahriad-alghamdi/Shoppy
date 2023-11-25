@@ -63,6 +63,7 @@ export const updateCategoryBySlug = async (req: Request, res: Response, next: Ne
     const { slug } = req.params
     const { updatedCategory } = await updateCategory(slug, title)
     await updatedCategory?.save()
+
     res.status(200).json({ message: 'Category updated successfully!', payload: updatedCategory })
   } catch (err) {
     if (err instanceof mongoose.Error.CastError) {

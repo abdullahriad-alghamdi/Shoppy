@@ -1,3 +1,5 @@
+/*======= Node Modules =======*/
+import fs from 'fs/promises'
 /*======= External Dependencies and Modules =======*/
 import slugify from 'slugify'
 
@@ -7,7 +9,7 @@ import Product from '../models/productSchema'
 // Utils
 import { createHTTPError } from '../utils/createError'
 // Types
-import { productType, productUpdateType } from '../types/productTypes'
+import { productInputType, productType, productUpdateType } from '../types/productTypes'
 
 // paginating products with a limit of 3 products per page
 export const paginateProducts = async (
@@ -42,12 +44,12 @@ export const findProduct = async (slug: string) => {
   return product
 }
 
-// creating new product
+// creating new product with image
 export const createNewProduct = async (product: productType, image: string | undefined) => {
   const { title } = product
 
-  const existProduct = await Product.exists({ title: title })
-  if (existProduct) {
+  const isProductExist = await Product.exists({ title: title })
+  if (isProductExist) {
     throw createHTTPError(409, `Product with title ${title} already exists`)
   }
 
@@ -60,11 +62,12 @@ export const createNewProduct = async (product: productType, image: string | und
   return newProduct
 }
 
+// updating product by slug
 export const updateProduct = async (slug: string, product: productUpdateType) => {
   const title = product?.title
 
-  const existProduct = await Product.exists({ slug: slug })
-  if (!existProduct) {
+  const isProductExist = await Product.exists({ slug: slug })
+  if (!isProductExist) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
 
@@ -81,9 +84,26 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
   return updatedProduct
 }
 
+// replacing the old image with the new image in the file system
+export const replaceImage = async (
+  file: Express.Multer.File | undefined,
+  slug: string,
+  data: productInputType
+) => {
+  if (file) {
+    data.image = file.path
+    // to delete the image from the public folder
+    const product = await findProduct(slug)
+    if (product.image !== 'public/images/default.png') {
+      fs.unlink(product.image)
+    }
+  }
+}
+
+// deleting product by slug
 export const deleteProduct = async (slug: string) => {
-  const existProduct = await Product.exists({ slug: slug })
-  if (!existProduct) {
+  const isProductExist = await Product.exists({ slug: slug })
+  if (!isProductExist) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
 

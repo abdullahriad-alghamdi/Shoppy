@@ -11,6 +11,7 @@ import {
   deleteProduct,
   findProduct,
   paginateProducts,
+  replaceImage,
   updateProduct,
 } from '../services/productService'
 
@@ -75,16 +76,12 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 // Put : /products/:slug -> update product by slug
 export const updateProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { slug } = req.params
-    const data = req.body
-    if (req.file) {
-      data.image = req.file.path
-      // to delete the image from the public folder
-      const product = await findProduct(slug)
-      if (product.image !== 'public/images/default.png') {
-        fs.unlink(product.image)
-      }
-    }
+    const { params, body, file } = req
+    const { slug } = params
+    const data = body
+
+    // replace the old image with the new image in the file system
+    replaceImage(file, slug, data)
 
     const product: productUpdateType = await updateProduct(slug, data)
     if (!product) {
