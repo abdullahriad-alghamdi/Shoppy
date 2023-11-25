@@ -1,6 +1,5 @@
 /*======= External Dependencies and Modules =======*/
 import { Schema, model } from 'mongoose'
-import bcrypt from 'bcrypt'
 
 /*======= Internal Modules or Files =======*/
 // Configuration

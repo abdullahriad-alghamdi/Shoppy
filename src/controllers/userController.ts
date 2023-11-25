@@ -7,14 +7,14 @@ import bcrypt from 'bcrypt'
 // Models
 import User from '../models/userSchema'
 // Configuration
-import { dev } from '../config/index'
+import { dev } from '../config'
 // Utils
 import { createHTTPError } from '../utils/createError'
+// Helpers
 import { handelSendEmail } from '../helper/sendEmail'
 
 export const processRegisterUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    //Get the user data
     const { name, email, password, address, phone } = req.body
     const imagePath = req.file?.path
 
@@ -34,10 +34,9 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
       imagePath: imagePath,
     }
 
-    // Generating token
+    // create token
     const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
-
-    // send email -> Token in email
+    // create email data with url and token
     const emailData = {
       email: email,
       subject: 'Account activation link',

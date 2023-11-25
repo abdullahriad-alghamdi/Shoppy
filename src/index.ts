@@ -3,7 +3,7 @@ import express, { Application } from 'express'
 import morgan from 'morgan'
 
 /*======= Internal Modules or Files =======*/
-// External Configuration
+// Configuration
 import { dev } from './config'
 import { connectDB } from './config/db'
 

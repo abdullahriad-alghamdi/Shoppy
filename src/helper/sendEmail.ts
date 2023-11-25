@@ -1,6 +1,12 @@
+/*======= External Dependencies and Modules =======*/
 import nodemailer from 'nodemailer'
+/*======= Internal Modules or Files =======*/
+// Configuration
 import { dev } from '../config'
+// Types
 import { EmailDataType } from '../types/userTypes'
+
+// create transporter
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -11,6 +17,7 @@ const transporter = nodemailer.createTransport({
   },
 })
 
+// send email
 export const handelSendEmail = async (emailData: EmailDataType) => {
   try {
     const mailOptions = {
