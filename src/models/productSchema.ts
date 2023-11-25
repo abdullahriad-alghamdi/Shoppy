@@ -58,4 +58,4 @@ const productSchema = new Schema(
   { timestamps: true }
 )
 
-export default model<productType>('Product', productSchema)
+export default  model<productType>('Product', productSchema)

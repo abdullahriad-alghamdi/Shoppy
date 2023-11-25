@@ -14,6 +14,8 @@ import {
   replaceImage,
   updateProduct,
 } from '../services/productService'
+import { Error } from 'mongoose'
+import { createHTTPError } from '../utils/createError'
 
 // Get : /products -> get all products
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
@@ -53,8 +55,18 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
       message: 'Get a single product by slug successfully',
       payload: product,
     })
-  } catch (error) {
-    next(error)
+  } catch (err) {
+    if (err instanceof Error.ValidationError){
+      // If it's a validation error, extract error messages
+      const errorMessages = Object.values(err.errors).map((err) => err.message);
+
+      // Send a response with the validation error messages
+      res.status(400).json({ errors: errorMessages });
+
+      next(createHTTPError(400,errorMessages.join(', ')))
+  } else {
+    next(err);
+  }
   }
 }
 

@@ -10,6 +10,6 @@ export const dev = {
     smtpPassword: process.env.SMTP_PASSWORD || 'password',
   },
   db: {
-    url: process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/ecommerce-db',
+    url: process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/sda-ecommerce-db',
   },
 }
