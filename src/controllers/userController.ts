@@ -44,7 +44,7 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
       html: `
         <h1>Hello ${name}</h1>
         <p>Please activate your account by :
-        <a href="http://localhost:8080/users/activate/${token}>
+        <a href="http://localhost:8080/users/activate/${token}">
         Click here to activate your account</a></p>`,
     }
 
@@ -67,6 +67,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
     if (!token) {
       throw createHTTPError(404, 'Please provide a token')
     }
+
     const decoded = jwt.verify(token, dev.app.jwtUserActivationKey)
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
@@ -75,6 +76,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
 
     res.status(201).json({
       message: 'user registered successfully',
+      payload: decoded,
     })
   } catch (error) {
     if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
