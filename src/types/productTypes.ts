@@ -2,6 +2,7 @@
 import { ICategory } from './categoryTypes'
 
 export interface productType extends Document {
+  _id: string;
   title: string
   slug: string
   description: string

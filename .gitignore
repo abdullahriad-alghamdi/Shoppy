@@ -1,5 +1,4 @@
 # Logs
-logs
 src/logs/requests.txt
 *.log
 npm-debug.log*

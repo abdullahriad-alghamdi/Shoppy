@@ -37,6 +37,7 @@ export const paginateProducts = async (
 
 // getting a single product by slug
 export const findProduct = async (slug: string) => {
+  
   const product = await Product.findOne({ slug: slug }).populate('category')
   if (!product) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
@@ -64,12 +65,15 @@ export const createNewProduct = async (product: productType, image: string | und
 
 // updating product by slug
 export const updateProduct = async (slug: string, product: productUpdateType) => {
+  
   const title = product?.title
 
   const isProductExist = await Product.exists({ slug: slug })
   if (!isProductExist) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
+  const validateProduct = new Product(product)
+  validateProduct.validate()
 
   const updatedProduct = await Product.findOneAndUpdate(
     { slug: slug },
