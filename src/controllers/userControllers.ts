@@ -13,6 +13,7 @@ import { createHTTPError } from '../utils/createError'
 // Helpers
 import { handelSendEmail } from '../helper/sendEmail'
 
+// Create user sending email with activation link
 export const processRegisterUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password, address, phone } = req.body
@@ -59,7 +60,7 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
   }
 }
 
-//Handle errors token
+// Activating user and saving to database
 export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.body.token
@@ -76,6 +77,68 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
     res.status(201).json({
       message: 'user registered successfully',
       payload: decoded,
+    })
+  } catch (error) {
+    if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
+      const errorMessage =
+        error instanceof TokenExpiredError ? 'Token has expired' : 'Invalid token'
+      next(createHTTPError(401, errorMessage))
+    } else {
+      next(error)
+    }
+  }
+}
+
+// Handling forgot password
+export const processResetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body
+    const isUserExists = await User.exists({ email: email })
+    if (!isUserExists) {
+      throw createHTTPError(404, 'User not found')
+    }
+    const tokenPayload = {
+      email: email,
+    }
+    // create token
+    const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
+    // create email data with url and token
+    const emailData = {
+      email: email,
+      subject: 'Reset password link',
+      html: `
+          <h1>Hello</h1>
+          <p>Please reset your password by :
+          <a href="http://localhost:8080/users/reset-password/${token}">
+          Click here to reset your password</a></p>`,
+    }
+    // send email
+    await handelSendEmail(emailData)
+    res.status(200).json({
+      message: 'Check your email to reset your password',
+      token: token,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Handling reset password
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token } = req.body
+    const { password } = req.body
+    if (!token) {
+      throw createHTTPError(404, 'Please provide a token')
+    }
+    const decoded = jwt.verify(token, dev.app.jwtUserActivationKey) as { email: string }
+    if (!decoded) {
+      throw createHTTPError(404, 'Invalid token')
+    }
+    const hashedPassword = await bcrypt.hash(password, 10)
+    await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
+    res.status(201).json({
+      message: 'Password updated successfully',
     })
   } catch (error) {
     if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {

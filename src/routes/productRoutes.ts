@@ -3,14 +3,14 @@ import { Router } from 'express'
 
 /*======= Internal Modules or Files =======*/
 // Controllers
-import { uploadProductImg } from '../middlewares/uploadFile'
+import { uploadProductImg } from '../middlewares/uploadFiles'
 import {
   createProduct,
   deleteProductBySlug,
   getAllProducts,
   getProductBySlug,
   updateProductBySlug,
-} from '../controllers/productController'
+} from '../controllers/productControllers'
 
 const router: Router = Router()
 

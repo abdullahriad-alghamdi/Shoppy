@@ -1,8 +1,10 @@
 /*======= External Dependencies and Modules =======*/
 import { Document } from 'mongoose'
+import { IOrder } from './orderTypes'
 
 export interface IUser extends Document {
   name: string
+  slug: string
   email: string
   password: string
   image: string
@@ -10,6 +12,10 @@ export interface IUser extends Document {
   phone: string
   isAdmin: boolean
   isBanned: boolean
+  orders: IOrder['_id'][]
+  createdAt?: Date
+  updatedAt?: Date
+  __v: number
 }
 
 export type EmailDataType = {

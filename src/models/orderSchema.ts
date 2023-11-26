@@ -1,35 +1,31 @@
-import { Document } from "mongodb";
-import { Schema, model } from "mongoose";
-import { IUser } from '../types/userTypes'
-import { productType } from '../types/productTypes'
+/*======= External Dependencies and Modules =======*/
+import { Schema, model } from 'mongoose'
 
-export interface IOrder extends Document {
-  _id: string
-  user: IUser['_id']
-  Products: productType['_id'][]
-  createdAt: string
-  updatedAt: string
-  __v: number
-}
+/*======= Internal Modules or Files =======*/
+// Types
+import { IProduct } from '../types/productTypes'
+import { IOrder } from '../types/orderTypes'
 
-const OrderSchema = new Schema(
+const orderSchema = new Schema(
   {
     user: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
-    products: [{
+    products: [
+      {
         type: Schema.Types.ObjectId,
-        ref: "Product",
+        ref: 'Product',
         required: true,
-    }],
+      },
+    ],
   },
   { timestamps: true }
-);
-OrderSchema.path('products').validate(function (value: productType['_id'][]) {
-    return value.length >= 1;
-  }, 'Must have at least one product');
+)
+orderSchema.path('products').validate(function (value: IProduct['_id'][]) {
+  return value.length >= 1
+}, 'Must have at least one product')
 
 //model/collection
-export const Order = model<IOrder>("Order", OrderSchema);
+export const Order = model<IOrder>('Order', orderSchema)

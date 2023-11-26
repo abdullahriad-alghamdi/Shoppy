@@ -1,8 +1,12 @@
 /*======= External Dependencies and Modules =======*/
+import { Document } from 'mongoose'
+
+/*======= Internal Modules or Files =======*/
+// Types
 import { ICategory } from './categoryTypes'
 
-export interface productType extends Document {
-  _id: string;
+export interface IProduct extends Document {
+  _id: string
   title: string
   slug: string
   description: string
@@ -10,12 +14,14 @@ export interface productType extends Document {
   countInStock: number
   sold: number
   image: string
-  category: ICategory['_id']
+  category: ICategory['_id'][]
+  isBanned: boolean
   createdAt?: Date
   updatedAt?: Date
+  __v: number
 }
 
-export type productInputType = Omit<productType, 'slug' | 'sold'>
+export type productInputType = Omit<IProduct, 'slug' | 'sold'>
 
 export type productUpdateType = Partial<productInputType> | null
 

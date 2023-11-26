@@ -3,9 +3,14 @@ import { Router } from 'express'
 
 /*======= Internal Modules or Files =======*/
 // Controllers
-import { activateUser, processRegisterUser } from '../controllers/userController'
+import {
+  activateUser,
+  processRegisterUser,
+  processResetPassword,
+  resetPassword,
+} from '../controllers/userControllers'
 // Middlewares
-import { uploadUserImg } from '../middlewares/uploadFile'
+import { uploadUserImg } from '../middlewares/uploadFiles'
 
 const router = Router()
 
@@ -19,6 +24,11 @@ router.post('/process-register', uploadUserImg.single('image'), processRegisterU
 // POST : /users/activate
 router.post('/activate', activateUser)
 
+// POST : /users/forgot-password -> Process Forgot Password For User
+router.post('/forgot-password', processResetPassword)
+
+// POST : /users/reset-password -> Process Reset Password For User
+router.post('/reset-password', resetPassword)
 // POST : /users/login -> Process Login For User
 
 // PUT : /users/:id -> Update User By Id

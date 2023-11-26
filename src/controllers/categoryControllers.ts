@@ -12,10 +12,10 @@ import {
   findCategory,
   getCategories,
   updateCategory,
-} from '../services/categoryService'
+} from '../services/categoryServices'
 
 // GET : /categories -> returned all category
-export const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const categories = await getCategories()
     const { category } = req.body

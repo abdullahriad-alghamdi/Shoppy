@@ -2,8 +2,10 @@
 import { Schema, model } from 'mongoose'
 
 /*======= Internal Modules or Files =======*/
-import { productType } from '../types/productTypes'
+// Configurations
 import { dev } from '../config'
+// Types
+import { IProduct } from '../types/productTypes'
 
 const productSchema = new Schema(
   {
@@ -58,4 +60,4 @@ const productSchema = new Schema(
   { timestamps: true }
 )
 
-export default  model<productType>('Product', productSchema)
+export const Product = model<IProduct>('Product', productSchema)

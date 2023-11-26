@@ -16,6 +16,12 @@ const userSchema = new Schema<IUser>(
       minlength: [3, 'Name must be at least 3 characters long'],
       maxlength: [300, 'Name must be at most 300 characters '],
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
     email: {
       type: String,
       required: [true, 'please give the email'],
@@ -60,6 +66,12 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    orders: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Order',
+      },
+    ],
   },
   { timestamps: true }
 )

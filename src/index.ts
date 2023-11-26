@@ -11,11 +11,10 @@ import { connectDB } from './config/db'
 import { errorHandler } from './middlewares/errorHandler'
 import myLogger from './middlewares/logger'
 // Routes
-import categoryRoutes from './routes/categoryRoutes'
 import productRoutes from './routes/productRoutes'
+import categoryRoutes from './routes/categoryRoutes'
+import orderRoutes from './routes/orderRoutes'
 import userRoutes from './routes/userRoutes'
-import orderRoutes from './routes/OrderRoute'
-
 
 const app: Application = express()
 const port: string | number = dev.app.port
@@ -33,7 +32,6 @@ app.use('/products', productRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/users', userRoutes)
 app.use('/orders', orderRoutes)
-
 
 app.get('/', (req, res) => {
   res.send('Welcome to our E-commerce API')

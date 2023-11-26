@@ -5,11 +5,11 @@ import slugify from 'slugify'
 
 /*======= Internal Modules or Files =======*/
 // Models
-import Product from '../models/productSchema'
+import { Product } from '../models/productSchema'
 // Utils
 import { createHTTPError } from '../utils/createError'
 // Types
-import { productInputType, productType, productUpdateType } from '../types/productTypes'
+import { productInputType, IProduct, productUpdateType } from '../types/productTypes'
 
 // paginating products with a limit of 3 products per page
 export const paginateProducts = async (
@@ -37,7 +37,6 @@ export const paginateProducts = async (
 
 // getting a single product by slug
 export const findProduct = async (slug: string) => {
-  
   const product = await Product.findOne({ slug: slug }).populate('category')
   if (!product) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
@@ -46,7 +45,7 @@ export const findProduct = async (slug: string) => {
 }
 
 // creating new product with image
-export const createNewProduct = async (product: productType, image: string | undefined) => {
+export const createNewProduct = async (product: IProduct, image: string | undefined) => {
   const { title } = product
 
   const isProductExist = await Product.exists({ title: title })
@@ -65,7 +64,6 @@ export const createNewProduct = async (product: productType, image: string | und
 
 // updating product by slug
 export const updateProduct = async (slug: string, product: productUpdateType) => {
-  
   const title = product?.title
 
   const isProductExist = await Product.exists({ slug: slug })

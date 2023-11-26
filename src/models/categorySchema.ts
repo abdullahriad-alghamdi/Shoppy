@@ -4,6 +4,7 @@ import { Schema, model } from 'mongoose'
 /*======= Internal Modules or Files =======*/
 // Types
 import { ICategory } from '../types/categoryTypes'
+
 const categorySchema = new Schema(
   {
     title: {
@@ -23,5 +24,4 @@ const categorySchema = new Schema(
   { timestamps: true }
 )
 
-//model/collection
 export const Category = model<ICategory>('Category', categorySchema)

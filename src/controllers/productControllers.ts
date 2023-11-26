@@ -1,20 +1,20 @@
-import fs from 'fs/promises'
 /*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
+import { Error } from 'mongoose'
 
 /*======= Internal Modules or Files =======*/
 // Types
 import { productUpdateType } from '../types/productTypes'
 // Services
 import {
-  createNewProduct,
-  deleteProduct,
-  findProduct,
   paginateProducts,
-  replaceImage,
+  findProduct,
+  createNewProduct,
   updateProduct,
-} from '../services/productService'
-import { Error } from 'mongoose'
+  replaceImage,
+  deleteProduct,
+} from '../services/productServices'
+// Utils
 import { createHTTPError } from '../utils/createError'
 
 // Get : /products -> get all products
@@ -56,17 +56,17 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
       payload: product,
     })
   } catch (err) {
-    if (err instanceof Error.ValidationError){
+    if (err instanceof Error.ValidationError) {
       // If it's a validation error, extract error messages
-      const errorMessages = Object.values(err.errors).map((err) => err.message);
+      const errorMessages = Object.values(err.errors).map((err) => err.message)
 
       // Send a response with the validation error messages
-      res.status(400).json({ errors: errorMessages });
+      res.status(400).json({ errors: errorMessages })
 
-      next(createHTTPError(400,errorMessages.join(', ')))
-  } else {
-    next(err);
-  }
+      next(createHTTPError(400, errorMessages.join(', ')))
+    } else {
+      next(err)
+    }
   }
 }
 
