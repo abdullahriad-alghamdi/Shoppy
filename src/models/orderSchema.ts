@@ -13,11 +13,13 @@ const orderSchema = new Schema(
       ref: 'User',
       required: true,
     },
+    // products here refers to the products in the cart
     products: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Product',
         required: true,
+        // required: [true, 'please add at least one product'],
       },
     ],
   },

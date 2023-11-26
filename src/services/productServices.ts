@@ -29,7 +29,7 @@ export const paginateProducts = async (
   const products = await Product.find({ price: { $lte: maxPrice, $gte: minPrice } })
     .skip(skip)
     .limit(limit)
-    .populate('category')
+    .populate('categories')
     .sort({ price: -1 })
 
   return { products, totalPages, currentPage: page }
@@ -37,7 +37,7 @@ export const paginateProducts = async (
 
 // getting a single product by slug
 export const findProduct = async (slug: string) => {
-  const product = await Product.findOne({ slug: slug }).populate('category')
+  const product = await Product.findOne({ slug: slug }).populate('categories')
   if (!product) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
@@ -70,8 +70,6 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
   if (!isProductExist) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
-  const validateProduct = new Product(product)
-  validateProduct.validate()
 
   const updatedProduct = await Product.findOneAndUpdate(
     { slug: slug },

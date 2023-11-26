@@ -66,12 +66,12 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    orders: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Order',
-      },
-    ],
+    // orders: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Order',
+    //   },
+    // ],
   },
   { timestamps: true }
 )

@@ -12,7 +12,7 @@ import {
 
 const router = Router()
 
-// GET : /order -> returned all order
+// GET : /orders -> returned all order
 router.get('/', getAllOrders)
 
 // GET : /orders/:slug -> returned single order

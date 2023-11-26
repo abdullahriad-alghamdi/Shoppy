@@ -14,8 +14,7 @@ export interface IProduct extends Document {
   countInStock: number
   sold: number
   image: string
-  category: ICategory['_id'][]
-  isBanned: boolean
+  categories: ICategory['_id'][]
   createdAt?: Date
   updatedAt?: Date
   __v: number

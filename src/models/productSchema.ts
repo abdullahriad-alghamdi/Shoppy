@@ -46,11 +46,13 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: 'Category',
-      required: true,
-    },
+    categories: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+      },
+    ],
     image: {
       type: String,
       default: dev.app.defaultImagePath,

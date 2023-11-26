@@ -17,14 +17,14 @@ import { createHTTPError } from '../utils/createError'
 // GET : /orders -> returned all Orders
 export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const order = await getOrders()
+    const orders = await getOrders()
     res.status(200).json({
       success: true,
-      message: 'orders fetched successfully',
-      payload: { order },
+      message: 'Orders fetched successfully',
+      payload: orders,
     })
-  } catch (err) {
-    next(err)
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -33,12 +33,12 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
   try {
     const newOrder = await findOrder(req.params.id)
 
-    res.status(200).json({ message: 'get Category Successfuly!', payload: newOrder })
-  } catch (err) {
-    if (err instanceof mongoose.Error.CastError) {
+    res.status(200).json({ message: 'Get Category Successfully!', payload: newOrder })
+  } catch (error) {
+    if (error instanceof mongoose.Error.CastError) {
       next(createHTTPError(400, 'id format not valid'))
     } else {
-      next(err)
+      next(error)
     }
   }
 }
@@ -73,7 +73,7 @@ export const updatedOrderById = async (req: Request, res: Response, next: NextFu
     const id = req.params.id
     const order = req.body
     const updatedOrder = await updateOrder(id, order)
-    res.status(200).json({ message: 'updated order successfully!', payload: updatedOrder })
+    res.status(200).json({ message: 'Updated order successfully!', payload: updatedOrder })
   } catch (err) {
     if (err instanceof Error.ValidationError) {
       // If it's a validation error, extract error messages
