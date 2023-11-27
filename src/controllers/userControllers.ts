@@ -171,6 +171,8 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
 
     // create token
     const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
+    // const token = generateToken(tokenPayload) //todo  TODO
+
     // create email data with url and token
     const emailData = {
       email: email,

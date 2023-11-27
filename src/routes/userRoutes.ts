@@ -39,7 +39,7 @@ router.put('/:slug', updateUserBySlug)
 router.delete('/:slug', isAdmin, deleteUserBySlug)
 
 // POST : /users/process-register -> Process Registration For New User
-router.post('/process-register', uploadUserImg.single('image'), processRegisterUser)
+router.post('/register', uploadUserImg.single('image'), processRegisterUser)
 
 // POST : /users/activate
 router.post('/activate', isLoggedOut, activateUser)
