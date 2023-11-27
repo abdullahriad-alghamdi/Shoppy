@@ -26,15 +26,19 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     const limit = Number(data.limit) || undefined
     const maxPrice = Number(data.maxPrice) || undefined
     const minPrice = Number(data.minPrice) || undefined
+    const search = data.search as string
+    const categoryId = (data.categoryId as string) || undefined
 
     const { products, totalPages, currentPage } = await paginateProducts(
       page,
       limit,
       maxPrice,
-      minPrice
+      minPrice,
+      search,
+      categoryId
     )
 
-    res.json({
+    res.status(200).json({
       message: 'Get all products successfully',
       payload: products,
       totalPages,
@@ -48,21 +52,17 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
 // Get : /products/:slug -> get product by slug
 export const getProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const params = req.params
+    const { slug } = req.params
 
-    const product = await findProduct(params.slug)
-    res.json({
+    const product = await findProduct(slug)
+    res.status(200).json({
       message: 'Get a single product by slug successfully',
       payload: product,
     })
   } catch (err) {
     if (err instanceof Error.ValidationError) {
-      // If it's a validation error, extract error messages
       const errorMessages = Object.values(err.errors).map((err) => err.message)
-
-      // Send a response with the validation error messages
       res.status(400).json({ errors: errorMessages })
-
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
       next(err)
@@ -80,8 +80,14 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     const product = await createNewProduct(data, img)
 
     res.status(201).json({ message: 'Product added successfully', payload: product })
-  } catch (err) {
-    next(err)
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      res.status(400).json({ errors: errorMessages })
+      next(createHTTPError(400, errorMessages.join(', ')))
+    } else {
+      next(error)
+    }
   }
 }
 
@@ -102,12 +108,18 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
         statusCode: 404,
       }
     }
-    res.json({
+    res.status(200).json({
       message: 'Update product by slug successfully',
       payload: product,
     })
-  } catch (error) {
-    next(error)
+  } catch (err) {
+    if (err instanceof Error.ValidationError) {
+      const errorMessages = Object.values(err.errors).map((err) => err.message)
+      res.status(400).json({ errors: errorMessages })
+      next(createHTTPError(400, errorMessages.join(', ')))
+    } else {
+      next(err)
+    }
   }
 }
 
@@ -121,7 +133,13 @@ export const deleteProductBySlug = async (req: Request, res: Response, next: Nex
       message: 'Delete product by slug successfully',
       payload: product,
     })
-  } catch (error) {
-    next(error)
+  } catch (err) {
+    if (err instanceof Error.ValidationError) {
+      const errorMessages = Object.values(err.errors).map((err) => err.message)
+      res.status(400).json({ errors: errorMessages })
+      next(createHTTPError(400, errorMessages.join(', ')))
+    } else {
+      next(err)
+    }
   }
 }

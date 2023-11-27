@@ -31,7 +31,9 @@ export const getAllOrders = async (req: Request, res: Response, next: NextFuncti
 // GET :/orders/:id-> returned single Orders
 export const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const newOrder = await findOrder(req.params.id)
+    const { id } = req.params
+
+    const newOrder = await findOrder(id)
 
     res.status(200).json({ message: 'Get Category Successfully!', payload: newOrder })
   } catch (error) {
@@ -52,17 +54,13 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
       message: 'Added New Order Successfully!',
       payload: newOrder,
     })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      // If it's a validation error, extract error messages
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
-
-      // Send a response with the validation error messages
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
       res.status(400).json({ errors: errorMessages })
-
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(err)
+      next(error)
     }
   }
 }
@@ -74,17 +72,11 @@ export const updatedOrderById = async (req: Request, res: Response, next: NextFu
     const order = req.body
     const updatedOrder = await updateOrder(id, order)
     res.status(200).json({ message: 'Updated order successfully!', payload: updatedOrder })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      // If it's a validation error, extract error messages
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
-
-      // Send a response with the validation error messages
-      res.status(400).json({ errors: errorMessages })
-
-      next(createHTTPError(400, errorMessages.join(', ')))
+  } catch (error) {
+    if (error instanceof Error.CastError) {
+      next(createHTTPError(400, 'id format not valid'))
     } else {
-      next(err)
+      next(error)
     }
   }
 }
@@ -96,6 +88,10 @@ export const deleteOrderById = async (req: Request, res: Response, next: NextFun
     const deletedOrder = await deleteOrder(id)
     res.status(200).json({ message: 'deleted order successfully!', payload: deletedOrder })
   } catch (error) {
-    next(error)
+    if (error instanceof mongoose.Error.CastError) {
+      next(createHTTPError(400, 'id format not valid'))
+    } else {
+      next(error)
+    }
   }
 }

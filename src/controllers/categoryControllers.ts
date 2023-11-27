@@ -1,6 +1,6 @@
 /*======= External Dependencies and Modules =======*/
 import { Request, Response, NextFunction } from 'express'
-import mongoose from 'mongoose'
+import mongoose, { Error } from 'mongoose'
 
 /*======= Internal Modules or Files =======*/
 // Utils
@@ -18,10 +18,7 @@ import {
 export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const categories = await getCategories()
-    const { category } = req.body
-    if (category === null) {
-      req.body.category = 'uncategorized'
-    }
+    // TODO: check if category is null or uncategorized
     res.status(200).json({ message: ' All Category retrieved Successfully!', payload: categories })
   } catch (err) {
     next(err)
@@ -36,11 +33,7 @@ export const getCategoryBySlug = async (req: Request, res: Response, next: NextF
 
     res.status(200).json({ message: 'Category retrieved successfully!', payload: newProduct })
   } catch (err) {
-    if (err instanceof mongoose.Error.CastError) {
-      next(createHTTPError(400, 'id format not valid'))
-    } else {
-      next(err)
-    }
+    next(err)
   }
 }
 
@@ -52,7 +45,13 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
 
     res.status(201).json({ message: 'Category created successfully!', payload: newProduct })
   } catch (err) {
-    next(err)
+    if (err instanceof Error.ValidationError) {
+      const errorMessages = Object.values(err.errors).map((err) => err.message)
+      res.status(400).json({ errors: errorMessages })
+      next(createHTTPError(400, errorMessages.join(', ')))
+    } else {
+      next(err)
+    }
   }
 }
 
@@ -65,11 +64,13 @@ export const updateCategoryBySlug = async (req: Request, res: Response, next: Ne
     await updatedCategory?.save()
 
     res.status(200).json({ message: 'Category updated successfully!', payload: updatedCategory })
-  } catch (err) {
-    if (err instanceof mongoose.Error.CastError) {
-      next(createHTTPError(400, 'id format not valid'))
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((err) => err.message)
+      res.status(400).json({ errors: errorMessages })
+      next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(err)
+      next(error)
     }
   }
 }
@@ -81,11 +82,7 @@ export const deleteCategoryBySlug = async (req: Request, res: Response, next: Ne
 
     const category = await deleteCategory(slug)
     res.status(200).json({ message: 'delete category Successfully!', payload: category })
-  } catch (err) {
-    if (err instanceof mongoose.Error.CastError) {
-      next(createHTTPError(400, 'id format not valid'))
-    } else {
-      next(err)
-    }
+  } catch (error) {
+    next(error)
   }
 }

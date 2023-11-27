@@ -20,7 +20,7 @@ export interface IProduct extends Document {
   __v: number
 }
 
-export type productInputType = Omit<IProduct, 'slug' | 'sold'>
+export type productInputType = Omit<IProduct, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '__v'>
 
 export type productUpdateType = Partial<productInputType> | null
 

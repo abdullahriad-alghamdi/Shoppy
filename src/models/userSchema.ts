@@ -9,6 +9,15 @@ import { IUser } from '../types/userTypes'
 
 const userSchema = new Schema<IUser>(
   {
+    username: {
+      type: String,
+      required: [true, 'please give the username'],
+      trim: true,
+      unique: true,
+      lowercase: true,
+      minlength: [3, 'Name must be at least 3 characters long'],
+      maxlength: [15, 'Name must be at most 15 characters '],
+    },
     name: {
       type: String,
       required: [true, 'please give the name'],
@@ -66,12 +75,12 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    // orders: [
-    //   {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'Order',
-    //   },
-    // ],
+    orders: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Order',
+      },
+    ],
   },
   { timestamps: true }
 )

@@ -35,8 +35,6 @@ export const createNewOrder = async (order: IOrder) => {
 
 // update order
 export const updateOrder = async (id: string, order: IOrder) => {
-  console.log(order)
-
   const orderToValidate = new Order(order)
   await orderToValidate.validate()
 

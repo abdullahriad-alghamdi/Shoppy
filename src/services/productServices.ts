@@ -16,17 +16,37 @@ export const paginateProducts = async (
   page: number = 1,
   limit: number = 3,
   maxPrice: number = 1000000,
-  minPrice: number = 0
+  minPrice: number = 0,
+  search: string = '',
+  categoryId?: string
 ) => {
-  const skip = (page - 1) * limit
+  let skip = (page - 1) * limit
   const count = await Product.countDocuments()
   const totalPages = Math.ceil(count / limit)
   // if the page is greater than the total pages, set the page to the last page
   if (page > totalPages) {
     page = totalPages
+    skip = (page - 1) * limit
   }
 
-  const products = await Product.find({ price: { $lte: maxPrice, $gte: minPrice } })
+  let filter: any = {
+    price: { $lte: maxPrice, $gte: minPrice },
+  }
+  const searchRegExp: RegExp = new RegExp('.*' + search + '.*', 'i')
+
+  if (search) {
+    // resting the skip to 0 if the user is searching
+    limit = count
+    page = 1
+    skip = (page - 1) * limit
+    filter.$or = [{ title: searchRegExp }, { description: searchRegExp }]
+  }
+
+  if (categoryId) {
+    filter.category = { $eq: categoryId }
+  }
+
+  const products = await Product.find(filter)
     .skip(skip)
     .limit(limit)
     .populate('categories')
@@ -52,10 +72,10 @@ export const createNewProduct = async (product: IProduct, image: string | undefi
   if (isProductExist) {
     throw createHTTPError(409, `Product with title ${title} already exists`)
   }
-
+  const slug = title && typeof title === 'string' ? slugify(title, { lower: true }) : ''
   const newProduct = new Product({
     ...product,
-    slug: slugify(title, { lower: true }),
+    slug: slug,
     image: image,
   })
   newProduct.save()
@@ -74,9 +94,9 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
   const updatedProduct = await Product.findOneAndUpdate(
     { slug: slug },
     {
-      // update the slug if the title is updated
       ...product,
-      slug: title ? slugify(title, { lower: true }) : slug,
+      slug: title && typeof title === 'string' ? slugify(title, { lower: true }) : slug,
+      title,
     },
     { new: true }
   )

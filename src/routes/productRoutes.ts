@@ -20,13 +20,13 @@ router.get('/', getAllProducts)
 // Get : /products/:slug -> get product by slug
 router.get('/:slug', getProductBySlug)
 
-// post : /products -> create new product
+// Post : /products -> create new product
 router.post('/', uploadProductImg.single('image'), createProduct)
 
-// put : /products/:slug -> update product by slug
+// Put : /products/:slug -> update product by slug
 router.put('/:slug', uploadProductImg.single('image'), updateProductBySlug)
 
-// delete : /products/:slug -> delete product by slug
+// Delete : /products/:slug -> delete product by slug
 router.delete('/:slug', deleteProductBySlug)
 
 export default router
