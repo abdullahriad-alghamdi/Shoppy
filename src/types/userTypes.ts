@@ -36,3 +36,18 @@ export type EmailDataType = {
 export interface CustomRequest extends Request {
   user_id?: string
 }
+
+export type RegistrationTokenPayloadType = {
+  username: string
+  name: string
+  email: string
+  password: string
+  address: string
+  phone: string
+  imagePath?: string
+  slug: string
+}
+
+export type ResetPasswordTokenPayload = {
+  email: string
+}

@@ -16,6 +16,7 @@ import { userUpdateType } from '../types/userTypes'
 import { dev } from '../config'
 
 // Utils
+import { generateToken, verifyToken } from '../utils/token'
 import { createHTTPError } from '../utils/createError'
 
 // Helpers
@@ -158,7 +159,8 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
-    const tokenPayload = {
+
+    const RegistrationTokenPayload = {
       username,
       name: name,
       email: email,
@@ -170,8 +172,7 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
     }
 
     // create token
-    const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
-    // const token = generateToken(tokenPayload) //todo  TODO
+    const token = generateToken(RegistrationTokenPayload)
 
     // create email data with url and token
     const emailData = {
@@ -210,7 +211,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
       throw createHTTPError(404, 'Please provide a token')
     }
 
-    const decoded = jwt.verify(token, dev.app.jwtUserActivationKey)
+    const decoded = verifyToken(token) as string
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }
@@ -241,11 +242,11 @@ export const processResetPassword = async (req: Request, res: Response, next: Ne
     if (!isUserExists) {
       throw createHTTPError(404, 'User not found')
     }
-    const tokenPayload = {
+    const ResetPasswordTokenPayload = {
       email: email,
     }
     // create token
-    const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
+    const token = jwt.sign(ResetPasswordTokenPayload, dev.app.jwtUserAccessKey, { expiresIn: '1h' })
     // create email data with url and token
     const emailData = {
       email: email,
@@ -281,7 +282,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     if (!token) {
       throw createHTTPError(404, 'Please provide a token')
     }
-    const decoded = jwt.verify(token, dev.app.jwtUserActivationKey) as { email: string }
+    const decoded = jwt.verify(token, dev.app.jwtUserAccessKey) as { email: string }
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }
