@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
 // Error handling
 app.use((req, res, next) => {
   try {
-    const error = new Error('Not found')
+    const error = new Error('Route not found')
     res.status(404)
     next(error)
   } catch (error) {

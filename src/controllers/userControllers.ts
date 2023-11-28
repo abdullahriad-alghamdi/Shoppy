@@ -16,7 +16,6 @@ import { userUpdateType } from '../types/userTypes'
 import { dev } from '../config'
 
 // Utils
-import { generateToken, verifyToken } from '../utils/token'
 import { createHTTPError } from '../utils/createError'
 
 // Helpers
@@ -147,7 +146,7 @@ export const deleteUserBySlug = async (req: Request, res: Response, next: NextFu
 }
 
 // Create user and sending email with activation link
-export const processRegisterUser = async (req: Request, res: Response, next: NextFunction) => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { username, name, email, password, address, phone } = req.body
     const imagePath = req.file?.path
@@ -160,7 +159,7 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const RegistrationTokenPayload = {
+    const tokenPayload = {
       username,
       name: name,
       email: email,
@@ -172,7 +171,7 @@ export const processRegisterUser = async (req: Request, res: Response, next: Nex
     }
 
     // create token
-    const token = generateToken(RegistrationTokenPayload)
+    const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
 
     // create email data with url and token
     const emailData = {
@@ -211,7 +210,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
       throw createHTTPError(404, 'Please provide a token')
     }
 
-    const decoded = verifyToken(token) as string
+    const decoded = jwt.verify(token, dev.app.jwtUserActivationKey)
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }
@@ -235,18 +234,18 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
 }
 
 // Handling forgot password
-export const processResetPassword = async (req: Request, res: Response, next: NextFunction) => {
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body
     const isUserExists = await User.exists({ email: email })
     if (!isUserExists) {
       throw createHTTPError(404, 'User not found')
     }
-    const ResetPasswordTokenPayload = {
+    const tokenPayload = {
       email: email,
     }
     // create token
-    const token = jwt.sign(ResetPasswordTokenPayload, dev.app.jwtUserAccessKey, { expiresIn: '1h' })
+    const token = jwt.sign(tokenPayload, dev.app.jwtUserAccessKey, { expiresIn: '10m' })
     // create email data with url and token
     const emailData = {
       email: email,

@@ -4,14 +4,14 @@ import { Router } from 'express'
 /*======= Internal Modules or Files =======*/
 // Controllers
 import {
+  registerUser,
   activateUser,
+  forgotPassword,
+  resetPassword,
   createUser,
   deleteUserBySlug,
   getAllUsers,
   getUserBySlug,
-  processRegisterUser,
-  processResetPassword,
-  resetPassword,
   updateUserBySlug,
   banUser,
   unbannedUser,
@@ -39,13 +39,13 @@ router.put('/:slug', updateUserBySlug)
 router.delete('/:slug', isAdmin, deleteUserBySlug)
 
 // POST : /users/process-register -> Process Registration For New User
-router.post('/register', uploadUserImg.single('image'), processRegisterUser)
+router.post('/register', uploadUserImg.single('image'), registerUser)
 
 // POST : /users/activate
 router.post('/activate', isLoggedOut, activateUser)
 
 // POST : /users/forgot-password -> Process Forgot Password For User
-router.post('/forgot-password', processResetPassword)
+router.post('/forgot-password', forgotPassword)
 
 // POST : /users/reset-password -> Process Reset Password For User
 router.post('/reset-password', resetPassword)
