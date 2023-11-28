@@ -47,7 +47,3 @@ export type RegistrationTokenPayloadType = {
   imagePath?: string
   slug: string
 }
-
-export type ResetPasswordTokenPayload = {
-  email: string
-}
