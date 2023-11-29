@@ -20,6 +20,7 @@ import { createHTTPError } from '../utils/createError'
 
 // Helpers
 import { handelSendEmail } from '../helper/sendEmail'
+import { createJSONWebToken } from '../helper/jwtHelper'
 // Services
 import {
   deleteUser,
@@ -171,7 +172,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     }
 
     // create token
-    const token = jwt.sign(tokenPayload, dev.app.jwtUserActivationKey, { expiresIn: '10m' })
+    const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
 
     // create email data with url and token
     const emailData = {
@@ -245,7 +246,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       email: email,
     }
     // create token
-    const token = jwt.sign(tokenPayload, dev.app.jwtUserAccessKey, { expiresIn: '10m' })
+    const token = createJSONWebToken({ email }, dev.app.jwtUserActivationKey, '15m')
     // create email data with url and token
     const emailData = {
       email: email,

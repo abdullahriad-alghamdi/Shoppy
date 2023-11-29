@@ -20,13 +20,13 @@ export const paginateProducts = async (
   search: string = '',
   categoryId?: string
 ) => {
-  let skip = (page - 1) * limit
+  let skip = Math.max(0, (page - 1) * limit)
   const count = await Product.countDocuments()
   const totalPages = Math.ceil(count / limit)
   // if the page is greater than the total pages, set the page to the last page
   if (page > totalPages) {
     page = totalPages
-    skip = (page - 1) * limit
+    skip = Math.max(0, (page - 1) * limit)
   }
 
   let filter: any = {
@@ -38,7 +38,7 @@ export const paginateProducts = async (
     // resting the skip to 0 if the user is searching
     limit = count
     page = 1
-    skip = (page - 1) * limit
+    skip = Math.max(0, (page - 1) * limit)
     filter.$or = [{ title: searchRegExp }, { description: searchRegExp }]
   }
 

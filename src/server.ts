@@ -16,8 +16,8 @@ import productRoutes from './routes/productRoutes'
 import categoryRoutes from './routes/categoryRoutes'
 import orderRoutes from './routes/orderRoutes'
 import userRoutes from './routes/userRoutes'
-import authRoutes from './routes/authRoutes'
 import cookieParser from 'cookie-parser'
+import authRoutes from './routes/authRoutes'
 
 const app: Application = express()
 const port: string | number = dev.app.port

@@ -11,7 +11,7 @@ import { IUser, userInputType, userUpdateType } from '../types/userTypes'
 
 // paginating users with a limit of 3 users per page
 export const paginateUsers = async (page: number = 1, limit: number = 3, search: string = '') => {
-  let skip = (page - 1) * limit
+  let skip = Math.max(0, (page - 1) * limit)
   const count = await User.countDocuments()
 
   const totalPages = Math.ceil(count / limit)
@@ -19,7 +19,7 @@ export const paginateUsers = async (page: number = 1, limit: number = 3, search:
   // if the page is greater than the total pages, set the page to the last page
   if (page > totalPages) {
     page = totalPages
-    skip = (page - 1) * limit
+    skip = Math.max(0, (page - 1) * limit)
   }
 
   let searchQuery: any = {}
@@ -29,7 +29,7 @@ export const paginateUsers = async (page: number = 1, limit: number = 3, search:
     // resting the skip to 0 if the user is searching
     limit = count
     page = 1
-    skip = (page - 1) * limit
+    skip = Math.max(0, (page - 1) * limit)
     searchQuery.$or = [{ name: searchRegExp }, { username: searchRegExp }, { email: searchRegExp }]
   }
   const options = {

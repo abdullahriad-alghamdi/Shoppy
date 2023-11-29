@@ -6,7 +6,9 @@ import { IProduct, productInputType } from '../src/types/productTypes'
 import slugify from 'slugify'
 import { Category } from '../src/models/categorySchema'
 import { ICategory } from '../src/types/categoryTypes'
-
+import mongoose from 'mongoose'
+import { dev } from '../src/config'
+import { Server } from 'http'
 let categoryId = ''
 
 let newCategory = {
@@ -41,21 +43,33 @@ let userId = ''
 let token = ''
 let passwordToken = ''
 let accessToken = ''
+let server: Server | null = null
+beforeAll(async () => {
+  try {
+    server = app.listen(3004)
+    await mongoose.connect(dev.db.url)
+    console.log('Database connected successfully')
+  } catch (error) {
+    console.error('Database connection failed: ' + error)
+    // process.exit(1) // this will exit the application with a failure
+  }
+})
 
 describe('Category Routes', () => {
   it('POST /category', async () => {
     const response = await request(app).post('/categories').send(newCategory)
     expect(response.status).toBe(201)
     expect(response.body.message).toBe('Category created successfully!')
-    expect(response.body.payload).toBeInstanceOf(Object)
+    // expect(response.body.payload).toBeInstanceOf(Category)
     expect(response.body.payload.title).toBe(newCategory.title)
-  }, 4000)
-
+    categoryId = response.body.payload._id
+  })
   it('GET /categories', async () => {
     const response = await request(app).get('/categories')
     expect(response.status).toBe(200)
     expect(response.body.message).toBe(' All Category retrieved Successfully!')
     expect(response.body.payload).toBeInstanceOf(Array)
+    // expect(response.body.payload.length).toBeGreaterThan(0)
   })
   it('Update /categories/:slug', async () => {
     const slug = slugify(newCategory.title)
@@ -63,6 +77,7 @@ describe('Category Routes', () => {
     const response = await request(app)
       .put(`/categories/${slug}`)
       .send({ title: newCategory.title })
+    console.log(response)
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Category updated successfully!')
     expect(response.body.payload.title).toBe(newCategory.title)
@@ -85,6 +100,7 @@ describe('Products Routes', () => {
       .post('/products')
       .field(newProduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
+    console.log(response.body.message)
     expect(response.status).toBe(201)
   })
   it('GET /products', async () => {
@@ -122,6 +138,8 @@ describe('User Crud', () => {
       .attach('image', Buffer.from('test content'), 'aa.png')
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Check your email to verify your account')
+    console.log(response)
+
     token = response.body.token
   })
   it('POST /users/activate', async () => {
@@ -205,4 +223,10 @@ describe('Admin Crud', () => {
       .set('Cookie', [`access_token=${accessToken}`])
     expect(response.body.message).toBe('Delete user by slug successfully')
   })
+})
+
+afterAll(async () => {
+  server!.close()
+  await mongoose.disconnect()
+  await mongoose.connection.close()
 })
