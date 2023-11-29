@@ -38,7 +38,7 @@ export const paginateUsers = async (page: number = 1, limit: number = 3, search:
   const users = await User.find(searchQuery, options)
     .skip(skip)
     .limit(limit)
-    .populate('orders') //todo  TODO:
+    .populate('orders')
     .sort({ createdAt: -1 })
 
   return { users, totalPages, currentPage: page }
@@ -46,10 +46,13 @@ export const paginateUsers = async (page: number = 1, limit: number = 3, search:
 
 // getting a single user by slug
 export const findUser = async (slug: string) => {
-  const user = await User.findOne({ slug: slug }).populate('orders').select('-password')
+  const user = await User.findOne({ slug: slug, isAdmin: false })
+    .populate('orders')
+    .select('-password')
   if (!user) {
     throw createHTTPError(404, `user with slug ${slug} does not exist`)
   }
+
   return user
 }
 
@@ -113,32 +116,15 @@ export const deleteUser = async (slug: string) => {
   await User.deleteOne({ slug: slug })
 }
 
-// banning user by is
-export const banUserById = async (id: string) => {
-  const productUpdated = await User.findOneAndUpdate(
-    { _id: id },
-    { isBand: true },
-    {
-      new: true,
-    }
-  )
-  if (!productUpdated) {
-    throw createHTTPError(404, 'user not found with id')
-  }
-  return productUpdated
-}
+// Update banning user by id
+export const updateBanStatusById = async (id: string, isBanned: boolean) => {
+  try {
+    const user = await User.findByIdAndUpdate(id, { isBanned }, { new: true })
 
-// unbanned user by id
-export const unbannedUserById = async (id: string) => {
-  const productUpdated = await User.findOneAndUpdate(
-    { _id: id },
-    { isBand: false },
-    {
-      new: true,
+    if (!user) {
+      throw createHTTPError(404, `user not found with ${id}`)
     }
-  )
-  if (!productUpdated) {
-    throw createHTTPError(404, `user not found with ${id}`)
+  } catch (error) {
+    throw error
   }
-  return productUpdated
 }

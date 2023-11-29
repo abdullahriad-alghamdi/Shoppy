@@ -20,7 +20,7 @@ import { createHTTPError } from '../utils/createError'
 
 // Helpers
 import { handelSendEmail } from '../helper/sendEmail'
-import { createJSONWebToken } from '../helper/jwtHelper'
+import { createJSONWebToken, verifyJSONWebToken } from '../helper/jwtHelper'
 // Services
 import {
   deleteUser,
@@ -28,8 +28,7 @@ import {
   findUser,
   paginateUsers,
   updateUser,
-  unbannedUserById,
-  banUserById,
+  updateBanStatusById,
 } from '../services/userServices'
 
 import { replaceImage } from '../services/productServices'
@@ -211,7 +210,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
       throw createHTTPError(404, 'Please provide a token')
     }
 
-    const decoded = jwt.verify(token, dev.app.jwtUserActivationKey)
+    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey)
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }
@@ -282,14 +281,15 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     if (!token) {
       throw createHTTPError(404, 'Please provide a token')
     }
-    const decoded = jwt.verify(token, dev.app.jwtUserAccessKey) as { email: string }
+    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey) as { email: string }
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }
     const hashedPassword = await bcrypt.hash(password, 10)
+    const unHashedPassword = await bcrypt.compare(password, hashedPassword)
     await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
     res.status(201).json({
-      message: 'Password updated successfully',
+      message: `password reset successfully to ${unHashedPassword}`,
     })
   } catch (error) {
     if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
@@ -305,7 +305,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 // Handling  ban user by id
 export const banUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userUpdated = await banUserById(req.params.id)
+    const userUpdated = await updateBanStatusById(req.params.id, true)
     res.json({
       message: ' user banned',
       payload: userUpdated,
@@ -318,7 +318,7 @@ export const banUser = async (req: Request, res: Response, next: NextFunction) =
 // Handling  unban user by id
 export const unbannedUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userUpdated = await unbannedUserById(req.params.id)
+    const userUpdated = await updateBanStatusById(req.params.id, false)
     res.json({
       message: ' user unbanned',
       payload: userUpdated,

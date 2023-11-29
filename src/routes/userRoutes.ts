@@ -24,19 +24,19 @@ import { isLoggedOut, isAdmin, isLoggedIn } from '../middlewares/auth'
 const router = Router()
 
 // GET : /users -> Get All Users
-router.get('/', getAllUsers)
+router.get('/', isLoggedIn, isAdmin, getAllUsers)
 
 // GET : /users/:slug -> Get User By Slug
-router.get('/:slug', getUserBySlug)
+router.get('/:slug', isLoggedIn, getUserBySlug)
 
 // POST : /users -> Create New User
-router.post('/', uploadUserImg.single('image'), createUser)
+router.post('/', isLoggedIn, isAdmin, uploadUserImg.single('image'), createUser)
 
 // PUT : /users/:slug -> Update User By Slug
 router.put('/:slug', updateUserBySlug)
 
 // DELETE : /users/:slug -> Delete User By Slug
-router.delete('/:slug',isLoggedIn, isAdmin, deleteUserBySlug)
+router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
 
 // POST : /users/process-register -> Process Registration For New User
 router.post('/register', uploadUserImg.single('image'), registerUser)

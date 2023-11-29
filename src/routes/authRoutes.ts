@@ -8,6 +8,7 @@ const router = Router()
 
 // POST : /auth/login -> Login User
 router.post('/login', loginUser)
+// POST : /auth/logout -> Logout User
 router.post('/logout', logoutUser)
 
 export default router
