@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon --watch \"src/**/*.ts\" --exec ts-node src/server.ts",
     "ts-w": "tsc -w",
-    "test": "jest"
+    "test": "jest  --bail --forceExit"
   },
   "keywords": [],
   "author": "",

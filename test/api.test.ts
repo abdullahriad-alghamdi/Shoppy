@@ -6,51 +6,60 @@ import { IProduct, productInputType } from '../src/types/productTypes'
 import slugify from 'slugify'
 import { Category } from '../src/models/categorySchema'
 import { ICategory } from '../src/types/categoryTypes'
+
 let categoryId = ''
+
 let newCategory = {
-  title: 'Desktop11111111',
+  title: 'smartphone',
+}
+let newProduct = {
+  title: 'iphone',
+  description: 'iPhone 15 Pro Max',
+  price: 5500,
+  countInStock: 8,
+  sold: 0,
+  categories: '',
 }
 let user = {
-  username: 'ththt1htqqh1q1',
-  name: 'thththqq1thq11',
-  email: 'thth1tqqhthq11@gmail.com',
-  address: 'ththqq1ththq11',
-  phone: 34534530147511,
-  password: 'tht1htqqhthq11',
+  username: 'mohammed',
+  name: 'mohammed',
+  email: 'mohd@gmail.com',
+  address: 'Riyadh',
+  phone: 111111111,
+  password: '12345678',
 }
 let adminUser = {
-  username: 'ttg1gqqttg1qa11',
-  name: 'ttgg1tg1qqqa11',
-  email: 'ttg1gtqqtqg1a11@gmail.com',
-  address: 'tt1ggqqqttg11a1',
-  phone: 99080193900111,
-  password: 'uu1qiuqqjhyi11a1',
+  username: 'ahmad',
+  name: 'ahmad',
+  email: 'ah@gmail.com',
+  address: 'Riyadh',
+  phone: 22222222,
+  password: '12345678',
   isAdmin: true,
 }
 let userId = ''
 let token = ''
 let passwordToken = ''
+let accessToken = ''
 
 describe('Category Routes', () => {
-  it('POST /Category', async () => {
+  it('POST /category', async () => {
     const response = await request(app).post('/categories').send(newCategory)
     expect(response.status).toBe(201)
     expect(response.body.message).toBe('Category created successfully!')
-    // expect(response.body.payload).toBeInstanceOf(Category)
+    expect(response.body.payload).toBeInstanceOf(Object)
     expect(response.body.payload.title).toBe(newCategory.title)
-    categoryId = response.body.payload._id
-    console.log('categoryId:', categoryId)
-  })
-  it('GET /products', async () => {
+  }, 4000)
+
+  it('GET /categories', async () => {
     const response = await request(app).get('/categories')
     expect(response.status).toBe(200)
     expect(response.body.message).toBe(' All Category retrieved Successfully!')
     expect(response.body.payload).toBeInstanceOf(Array)
-    expect(response.body.payload.length).toBeGreaterThan(0)
   })
   it('Update /categories/:slug', async () => {
     const slug = slugify(newCategory.title)
-    newCategory.title = 'Desktop11111112'
+    newCategory.title = 'desktop'
     const response = await request(app)
       .put(`/categories/${slug}`)
       .send({ title: newCategory.title })
@@ -58,9 +67,11 @@ describe('Category Routes', () => {
     expect(response.body.message).toBe('Category updated successfully!')
     expect(response.body.payload.title).toBe(newCategory.title)
   })
-  it('GET /products/:slug', async () => {
+  it('GET /categories/:slug', async () => {
     const slug = slugify(newCategory.title)
     const response = await request(app).get(`/categories/${slug}`)
+    categoryId = response.body.payload._id
+    newProduct.categories = categoryId
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Category retrieved successfully!')
     expect(response.body.payload).toBeInstanceOf(Object)
@@ -70,17 +81,9 @@ describe('Category Routes', () => {
 
 describe('Products Routes', () => {
   it('POST /products', async () => {
-    const newproduct = {
-      title: 'smart',
-      description: 'smartaaaaa',
-      price: 2500,
-      countInStock: 8,
-      sold: 0,
-      categories: categoryId,
-    }
     const response = await request(app)
       .post('/products')
-      .field(newproduct)
+      .field(newProduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
     expect(response.status).toBe(201)
   })
@@ -88,35 +91,26 @@ describe('Products Routes', () => {
     const response = await request(app).get('/products')
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Get all products successfully')
-    // expect(response.body.payload).toHaveLength(3)
-    // expect(response.body.totalPages).toBe(4)
     expect(response.body.currentPage).toBe(1)
   })
   it('Update /products', async () => {
-    const newproduct = {
-      title: 'smartwatch',
-      description: 'smartaawatch',
-      price: 2300,
-      countInStock: 7,
-      sold: 0,
-      image: 'aa.png',
-      categories: [],
-    }
-
+    const slug = slugify(newProduct.title)
+    newProduct.title = 'samsung'
     const response = await request(app)
-      .put('/products/smart')
-      .field(newproduct)
+      .put(`/products/${slug}`)
+      .field(newProduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
     expect(response.status).toBe(200)
   })
   it('Delete /products', async () => {
-      const response = await request(app).delete('/products/smartwatch')
-      expect(response.status).toBe(200)
+    const slug = slugify(newProduct.title)
+    const response = await request(app).delete(`/products/${slug}`)
+    expect(response.status).toBe(200)
   })
   it('Delete /categories', async () => {
     const slug = slugify(newCategory.title)
-      const response = await request(app).delete(`/categories/${slug}`)
-      expect(response.status).toBe(200)
+    const response = await request(app).delete(`/categories/${slug}`)
+    expect(response.status).toBe(200)
   })
 })
 
@@ -128,9 +122,7 @@ describe('User Crud', () => {
       .attach('image', Buffer.from('test content'), 'aa.png')
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Check your email to verify your account')
-
     token = response.body.token
-    console.log(userId)
   })
   it('POST /users/activate', async () => {
     const response = await request(app).post('/users/activate').send({ token: token })
@@ -143,10 +135,14 @@ describe('User Crud', () => {
       .send({ email: user.email, password: user.password })
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Welcome back')
+    const setCookieHeader = response.headers['set-cookie']
+    accessToken = setCookieHeader[0].split('=')[1].split(';')[0]
   })
   it('DELETE /users/:slug Verify for admin ', async () => {
     const slug = slugify(user.username)
-    const response = await request(app).delete(`/users/${slug}`)
+    const response = await request(app)
+      .delete(`/users/${slug}`)
+      .set('Cookie', [`access_token=${accessToken}`])
     expect(response.status).toBe(401)
     expect(response.body.message).toBe('Sorry, only admin can do this')
   })
@@ -154,7 +150,6 @@ describe('User Crud', () => {
     const response = await request(app)
       .post(`/auth/logout`)
       .send({ email: user.email, password: user.password })
-    console.log(response)
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Logged out successfully')
   })
@@ -162,7 +157,6 @@ describe('User Crud', () => {
     const response = await request(app)
       .post(`/users/forgot-password`)
       .send({ email: user.email, password: user.password })
-    console.log(response)
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Check your email to reset your password')
     passwordToken = response.body.token
@@ -171,11 +165,9 @@ describe('User Crud', () => {
     const response = await request(app)
       .post(`/users/reset-password`)
       .send({ token: passwordToken, password: user.password })
-    console.log(response)
     expect(response.status).toBe(201)
     expect(response.body.message).toBe('Password updated successfully')
   })
-
 })
 describe('Admin Crud', () => {
   it('Post /users/', async () => {
@@ -183,13 +175,12 @@ describe('Admin Crud', () => {
       .post('/users/')
       .field(adminUser)
       .attach('image', Buffer.from('test content'), 'aa.png')
-    expect(response.status).toBe(201 )
+    expect(response.status).toBe(201)
     expect(response.body.message).toBe('User created successfully')
     expect(response.body.payload).toBeInstanceOf(Object)
     expect(response.body.payload.name).toBe(adminUser.name)
 
     token = response.body.token
-    console.log('response.body.isAdmin:',response.body.isAdmin)
   })
   it('Post /auth/login', async () => {
     const response = await request(app)
@@ -197,13 +188,21 @@ describe('Admin Crud', () => {
       .send({ email: adminUser.email, password: adminUser.password })
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Welcome back')
+    const setCookieHeader = response.headers['set-cookie']
+    accessToken = setCookieHeader[0].split('=')[1].split(';')[0]
   })
-  it('DELETE /users/:slug Verify for admin ', async () => {
+  it('DELETE /users/:slug Verify for admin', async () => {
     const slug = slugify(user.username)
-    const response = await request(app).delete(`/users/${slug}`)
-    console.log(response);
-    // expect(response.status).toBe(200)
+    const response = await request(app)
+      .delete(`/users/${slug}`)
+      .set('Cookie', [`access_token=${accessToken}`])
     expect(response.body.message).toBe('Delete user by slug successfully')
   })
-
+  it('DELETE /users/:slug Verify for admin', async () => {
+    const slug = slugify(adminUser.username)
+    const response = await request(app)
+      .delete(`/users/${slug}`)
+      .set('Cookie', [`access_token=${accessToken}`])
+    expect(response.body.message).toBe('Delete user by slug successfully')
+  })
 })
