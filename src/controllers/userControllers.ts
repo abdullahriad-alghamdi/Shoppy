@@ -136,7 +136,7 @@ export const deleteUserBySlug = async (req: Request, res: Response, next: NextFu
     const { slug } = req.params
 
     const user = await deleteUser(slug)
-    res.json({
+    res.status(200).json({
       message: 'Delete user by slug successfully',
       payload: user,
     })

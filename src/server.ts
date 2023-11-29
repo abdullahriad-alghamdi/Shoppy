@@ -17,6 +17,7 @@ import categoryRoutes from './routes/categoryRoutes'
 import orderRoutes from './routes/orderRoutes'
 import userRoutes from './routes/userRoutes'
 import authRoutes from './routes/authRoutes'
+import cookieParser from 'cookie-parser'
 
 const app: Application = express()
 const port: string | number = dev.app.port
@@ -31,6 +32,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(myLogger)
+app.use(cookieParser())
 
 // Use routes
 app.use('/products', productRoutes)
@@ -58,3 +60,5 @@ app.use((req, res, next) => {
 })
 
 app.use(errorHandler)
+
+export default app

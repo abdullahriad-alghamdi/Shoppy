@@ -81,7 +81,7 @@ export const deleteCategoryBySlug = async (req: Request, res: Response, next: Ne
     const { slug } = req.params
 
     const category = await deleteCategory(slug)
-    res.status(200).json({ message: 'delete category Successfully!', payload: category })
+    res.status(200).json({ message: 'delete category Successfully!', payload: category },)
   } catch (error) {
     next(error)
   }

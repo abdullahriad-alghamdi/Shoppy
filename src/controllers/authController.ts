@@ -12,9 +12,11 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
   try {
     const { email, password, name } = req.body
     const user = await login(email, password)
+    console.log(user._id );
+    
 
     const accessToken = jwt.sign({ _id: user._id }, dev.app.jwtUserAccessKey, {
-      expiresIn: '1h',
+      expiresIn: '2m',
     })
 
     res.cookie('access_token', accessToken, {
@@ -22,7 +24,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       httpOnly: true,
       sameSite: 'none',
     })
-    res.status(200).send({ message: 'Welcome back', name })
+    res.status(200).send({ message: 'Welcome back', payload:user })
   } catch (err) {
     next(err)
   }
