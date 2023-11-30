@@ -15,7 +15,6 @@ import {
   updateUserBySlug,
   banUser,
   unbannedUser,
-  updateBanStatus,
 } from '../controllers/userControllers'
 
 // Middlewares
@@ -56,8 +55,5 @@ router.put('/ban/:id', isLoggedIn, isAdmin, banUser)
 
 // POST : /users/ban/:id -> returned Updated user
 router.put('/unban/:id', isLoggedIn, isAdmin, unbannedUser)
-
-// POST : /users/updateBanStatus/:id -> returned Updated user
-router.put('/updateBanStatus/:id', isLoggedIn, isAdmin, updateBanStatus)
 
 export default router

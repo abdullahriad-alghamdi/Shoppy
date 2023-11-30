@@ -130,7 +130,7 @@ export const updateUserBySlug = async (req: Request, res: Response, next: NextFu
   }
 }
 
-// Delete : /users/:slug -> delete product by slug
+// Delete : /users/:slug -> delete user by slug
 export const deleteUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params
@@ -324,35 +324,6 @@ export const unbannedUser = async (req: Request, res: Response, next: NextFuncti
       message: 'User is unbanned',
       payload: userUpdated,
     })
-  } catch (err) {
-    next(err)
-  }
-}
-
-export const updateBanStatus = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // let { id } = req.params
-    // const user = User.findById(id)
-    // console.log(user, 'user', id, 'id')
-    // if (!user) {
-    //   throw createHTTPError(404, 'User not found')
-    // } else if (user._id === id) {
-    //   throw createHTTPError(404, 'You cannot ban yourself')
-    // } else if (user.isAdmin) {
-    //   throw createHTTPError(404, 'You cannot ban admin')
-    // } else if (user.isBanned === false) {
-    //   await user.updateOne({ isBanned: true })
-    //   res.status(200).json({
-    //     message: 'User is banned',
-    //     payload: user,
-    //   })
-    // } else if (user.isBanned === true) {
-    //   await user.updateOne({ isBanned: false })
-    //   res.status(200).json({
-    //     message: 'User is unbanned',
-    //     payload: user,
-    //   })
-    // }
   } catch (err) {
     next(err)
   }

@@ -129,6 +129,7 @@ export const deleteProductBySlug = async (req: Request, res: Response, next: Nex
     const { slug } = req.params
 
     const product = await deleteProduct(slug)
+
     res.json({
       message: 'Delete product by slug successfully',
       payload: product,
