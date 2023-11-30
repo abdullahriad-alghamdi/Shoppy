@@ -7,7 +7,6 @@ export const createJSONWebToken = (tokenPayload: object, secretKey: string, expi
     })
     return token
   } catch (error) {
-    console.log(error)
     throw new Error('tokenPayload must be a non-empty object')
   }
 }
@@ -17,7 +16,6 @@ export const verifyJSONWebToken = (token: string, secretKey: string) => {
     const decoded = jwt.verify(token, secretKey)
     return decoded
   } catch (error) {
-    console.log(error)
     throw new Error('Invalid token')
   }
 }

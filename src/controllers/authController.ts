@@ -11,20 +11,21 @@ import { login } from '../services/authServices'
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password, name } = req.body
+    // check if user exist
     const user = await login(email, password)
-    console.log(user._id );
-    
-
+    // create access token
     const accessToken = jwt.sign({ _id: user._id }, dev.app.jwtUserAccessKey, {
-      expiresIn: '2m',
-    })
+      expiresIn: '14m',
+    } as jwt.SignOptions)
 
+    // add access token to cookie
     res.cookie('access_token', accessToken, {
-      maxAge: 15 * 60 * 1000,
+      maxAge: 15 * 60 * 1000, // 15 minutes
       httpOnly: true,
       sameSite: 'none',
     })
-    res.status(200).send({ message: 'Welcome back', payload:user })
+    // send response
+    res.status(200).send({ message: `Welcome ${user.name}!` })
   } catch (err) {
     next(err)
   }
@@ -32,9 +33,10 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 export const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // clear cookie
     res.clearCookie('access_token')
-
-    res.status(200).send({ message: 'Logged out successfully' })
+    // send response
+    res.status(200).send({ message: 'Logout successfully' })
   } catch (err) {
     next(err)
   }

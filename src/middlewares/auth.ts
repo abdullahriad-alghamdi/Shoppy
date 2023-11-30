@@ -16,7 +16,6 @@ import { CustomRequest } from '../types/userTypes'
 export const isLoggedIn = (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const accessToken = req.cookies.access_token
-    console.log(accessToken)
 
     if (!accessToken) {
       throw createHTTPError(401, 'You are not logged in! please log in to get access')
@@ -24,9 +23,9 @@ export const isLoggedIn = (req: CustomRequest, res: Response, next: NextFunction
     const decode = jwt.verify(accessToken, dev.app.jwtUserAccessKey) as JwtPayload
     if (!decode) {
       throw createHTTPError(401, 'Invalid token or token expired')
+    } else {
+      req.user_id = decode._id
     }
-    req.user_id = decode._id
-    console.log(req.user_id)
 
     next()
   } catch (err) {
@@ -41,9 +40,9 @@ export const isLoggedOut = (req: CustomRequest, res: Response, next: NextFunctio
 
     if (accessToken) {
       throw createHTTPError(401, 'You are already logged in')
+    } else {
+      next()
     }
-
-    next()
   } catch (err) {
     next(err)
   }

@@ -77,7 +77,6 @@ describe('Category Routes', () => {
     const response = await request(app)
       .put(`/categories/${slug}`)
       .send({ title: newCategory.title })
-    console.log(response)
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Category updated successfully!')
     expect(response.body.payload.title).toBe(newCategory.title)
@@ -100,7 +99,6 @@ describe('Products Routes', () => {
       .post('/products')
       .field(newProduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
-    console.log(response.body.message)
     expect(response.status).toBe(201)
   })
   it('GET /products', async () => {
@@ -138,7 +136,6 @@ describe('User Crud', () => {
       .attach('image', Buffer.from('test content'), 'aa.png')
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Check your email to verify your account')
-    console.log(response)
 
     token = response.body.token
   })

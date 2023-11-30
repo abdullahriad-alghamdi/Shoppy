@@ -215,7 +215,6 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
       throw createHTTPError(404, 'Invalid token')
     }
 
-    console.log(decoded)
     await User.create(decoded)
 
     res.status(201).json({
@@ -245,7 +244,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
       email: email,
     }
     // create token
-    const token = createJSONWebToken({ email }, dev.app.jwtUserActivationKey, '15m')
+    const token = createJSONWebToken({ email }, dev.app.jwtUserActivationKey, '10m')
     // create email data with url and token
     const emailData = {
       email: email,
@@ -286,10 +285,9 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
       throw createHTTPError(404, 'Invalid token')
     }
     const hashedPassword = await bcrypt.hash(password, 10)
-    const unHashedPassword = await bcrypt.compare(password, hashedPassword)
     await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
     res.status(201).json({
-      message: `password reset successfully to ${unHashedPassword}`,
+      message: `password reset successfully`,
     })
   } catch (error) {
     if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
@@ -305,9 +303,11 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 // Handling  ban user by id
 export const banUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userUpdated = await updateBanStatusById(req.params.id, true)
+    let { id } = req.params
+
+    const userUpdated = await updateBanStatusById(id, true)
     res.json({
-      message: ' user banned',
+      message: 'User is banned',
       payload: userUpdated,
     })
   } catch (err) {
@@ -318,11 +318,41 @@ export const banUser = async (req: Request, res: Response, next: NextFunction) =
 // Handling  unban user by id
 export const unbannedUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userUpdated = await updateBanStatusById(req.params.id, false)
+    let { id } = req.params
+    const userUpdated = await updateBanStatusById(id, false)
     res.json({
-      message: ' user unbanned',
+      message: 'User is unbanned',
       payload: userUpdated,
     })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const updateBanStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // let { id } = req.params
+    // const user = User.findById(id)
+    // console.log(user, 'user', id, 'id')
+    // if (!user) {
+    //   throw createHTTPError(404, 'User not found')
+    // } else if (user._id === id) {
+    //   throw createHTTPError(404, 'You cannot ban yourself')
+    // } else if (user.isAdmin) {
+    //   throw createHTTPError(404, 'You cannot ban admin')
+    // } else if (user.isBanned === false) {
+    //   await user.updateOne({ isBanned: true })
+    //   res.status(200).json({
+    //     message: 'User is banned',
+    //     payload: user,
+    //   })
+    // } else if (user.isBanned === true) {
+    //   await user.updateOne({ isBanned: false })
+    //   res.status(200).json({
+    //     message: 'User is unbanned',
+    //     payload: user,
+    //   })
+    // }
   } catch (err) {
     next(err)
   }
