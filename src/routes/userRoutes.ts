@@ -31,7 +31,7 @@ const router = Router()
  *========================**/
 
 // POST : /users/process-register -> Process Registration For New User
-router.post('/register', isLoggedOut, uploadUserImg, registerUser)
+router.post('/register', isLoggedOut, uploadUserImg,userValidate, registerUser)
 
 // POST : /users/activate
 router.post('/activate', activateUser)
@@ -68,9 +68,9 @@ router.post('/', uploadUserImg,adminValidate, createUser)
 router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
 
 // POST : /users/ban/:id -> returned Updated user
-router.put('/ban/:id', isLoggedIn, isAdmin, banUser)
+router.put('/ban/:id', isLoggedIn, isAdmin,userValidate, banUser)
 
 // POST : /users/ban/:id -> returned Updated user
-router.put('/unban/:id', isLoggedIn, isAdmin, unbannedUser)
+router.put('/unban/:id', isLoggedIn, isAdmin,userValidate, unbannedUser)
 
 export default router

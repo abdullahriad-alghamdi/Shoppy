@@ -26,7 +26,7 @@ router.get('/:slug', getCategoryBySlug)
 router.post('/', isLoggedIn, isAdmin,categoryValidate, createCategory)
 
 // PUT : /category/:slug -> update single category by slug
-router.put('/:slug', isLoggedIn, isAdmin, updateCategoryBySlug)
+router.put('/:slug', isLoggedIn, isAdmin,categoryValidate, updateCategoryBySlug)
 
 // DELETE : /category/:slug -> delete single category by slug
 router.delete('/:slug', isLoggedIn, isAdmin, deleteCategoryBySlug)

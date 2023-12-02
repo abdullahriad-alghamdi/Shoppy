@@ -99,7 +99,6 @@ describe('Products Routes', () => {
       .post('/products')
       .field(newproduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
-    console.log(response)
     expect(response.body.message).toBe('Product added successfully')
     expect(response.status).toBe(201)
   }, 10000)
@@ -136,11 +135,9 @@ describe('User Crud', () => {
       .post('/users/register')
       .field(user)
       .attach('image', Buffer.from('test content'), 'aa.png')
-    console.log(response)
 
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Check your email to verify your account')
-    console.log(response)
 
     token = response.body.token
   })

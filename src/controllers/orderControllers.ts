@@ -20,11 +20,11 @@ import { IOrderProduct } from '../types/orderTypes'
 // POST :/orders/process-payment -> add new user order
 export const handlePayment = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const { cartItem } = req.body
+    const  order  = req.body
 
     const newOrder = new Order({
-      products: cartItem.products,
-      payment: cartItem.payment,
+      products: order.products,
+      payment: order.payment,
       buyer: req.user_id,
     })
     //Update sold value
@@ -59,15 +59,13 @@ export const getOrderForUser = async (req: CustomRequest, res: Response, next: N
  export const getOrdersAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const orders = await Order.find()
-      .populate('buyer', 'name address phone')
+      .populate('buyer', 'name address phone -_id ')
       .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
-    // .populate('user' {_id:0})   => not showing id
     res.status(200).send({ message: 'get all orders',payload:orders })
   } catch (error) {
     next(error)
   }
 }
-
 // PUT :/orders/:id -> update a Orders by id
 export const updatedOrderById = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -83,7 +81,6 @@ export const updatedOrderById = async (req: Request, res: Response, next: NextFu
     }
   }
 }
-
 // DELETE :/orders/:id -> delete a Orders by id
 export const deleteOrderById = async (req: Request, res: Response, next: NextFunction) => {
   try {

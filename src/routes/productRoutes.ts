@@ -29,7 +29,7 @@ router.get('/:slug', getProductBySlug)
 router.post('/', isLoggedIn, isAdmin, uploadProductImg,productValidate, createProduct)
 
 // Put : /products/:slug -> update product by slug
-router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg, updateProductBySlug)
+router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg,productValidate, updateProductBySlug)
 
 // Delete : /products/:slug -> delete product by slug
 router.delete('/:slug', isLoggedIn, isAdmin, deleteProductBySlug)
