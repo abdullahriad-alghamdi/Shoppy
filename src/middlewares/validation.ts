@@ -100,13 +100,23 @@ export const categoryValidate = (req: Request, res: Response, next: NextFunction
 // Order Validation
 export const orderValidate = (req: Request, res: Response, next: NextFunction) => {
   const schema = Joi.object({
-    buyer: Joi.string().min(3).max(100).required(),
-    products: Joi.array().min(1).required(),
-    payment:Joi.object().min(1),
-    status:Joi.string().min(1)
+    products: Joi.array().items(
+      Joi.object({
+        product: Joi.string().required(), 
+        quantity: Joi.number().required(),
+      })
+    ).min(1).required(),
+    payment: Joi.object().min(1).required(),
+    status:Joi.string(),
+    buyer:Joi.string()
+
+
   })
 
   const { error, value } = schema.validate(req.body)
+  console.log("error",error);
+  
+  
   if (error) {
     createHTTPError(400, error.details[0].message)
   } else {
