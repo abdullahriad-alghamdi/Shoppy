@@ -3,10 +3,10 @@ import { Request, Response, NextFunction } from 'express'
 
 /*======= Internal Modules or Files =======*/
 // Types
-import { Error } from '../types/productTypes'
+import { Error } from '../types/errorType'
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(err.statusCode || 500).json({
-    message: err.message,
+export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
+  res.status(error.statusCode || 500).json({
+    errors: error.message,
   })
 }

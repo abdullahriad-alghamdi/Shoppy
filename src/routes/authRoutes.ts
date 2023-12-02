@@ -4,12 +4,12 @@ import { Router } from 'express'
 // Controllers
 import { loginUser, logoutUser } from '../controllers/authController'
 // Middlewares
-import { isLoggedOut, isLoggedIn } from '../middlewares/auth'
+import { isLoggedOut, isLoggedIn, userId } from '../middlewares/auth'
 
 const router = Router()
 
 // POST : /auth/login -> Login User
-router.post('/login', isLoggedOut, loginUser)
+router.post('/login', userId, isLoggedOut, loginUser)
 // POST : /auth/logout -> Logout User
 router.post('/logout', isLoggedIn, logoutUser)
 

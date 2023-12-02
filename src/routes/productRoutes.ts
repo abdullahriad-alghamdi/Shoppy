@@ -2,8 +2,8 @@
 import { Router } from 'express'
 
 /*======= Internal Modules or Files =======*/
+
 // Controllers
-import { uploadProductImg } from '../middlewares/uploadFiles'
 import {
   createProduct,
   deleteProductBySlug,
@@ -11,6 +11,11 @@ import {
   getProductBySlug,
   updateProductBySlug,
 } from '../controllers/productControllers'
+
+// Middlewares
+import { isLoggedIn, isAdmin } from '../middlewares/auth'
+import { uploadProductImg } from '../middlewares/uploadFiles'
+import { productValidate } from '../middlewares/validation'
 
 const router: Router = Router()
 
@@ -21,12 +26,12 @@ router.get('/', getAllProducts)
 router.get('/:slug', getProductBySlug)
 
 // Post : /products -> create new product
-router.post('/', uploadProductImg.single('image'), createProduct)
+router.post('/', isLoggedIn, isAdmin, uploadProductImg, createProduct)
 
 // Put : /products/:slug -> update product by slug
-router.put('/:slug', uploadProductImg.single('image'), updateProductBySlug)
+router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg, updateProductBySlug)
 
 // Delete : /products/:slug -> delete product by slug
-router.delete('/:slug', deleteProductBySlug)
+router.delete('/:slug', isLoggedIn, isAdmin, deleteProductBySlug)
 
 export default router

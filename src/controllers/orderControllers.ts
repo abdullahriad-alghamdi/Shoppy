@@ -14,6 +14,10 @@ import {
 // Utils
 import { createHTTPError } from '../utils/createError'
 
+/**======================
+ **      user controllers
+ *========================**/
+
 // GET : /orders -> returned all Orders
 export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -24,7 +28,7 @@ export const getAllOrders = async (req: Request, res: Response, next: NextFuncti
       payload: orders,
     })
   } catch (error) {
-    next(error)
+    return next(error)
   }
 }
 
@@ -40,7 +44,7 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
     if (error instanceof mongoose.Error.CastError) {
       next(createHTTPError(400, 'id format not valid'))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -60,10 +64,14 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
       res.status(400).json({ errors: errorMessages })
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
+
+/** ======================
+ **     Admin controllers
+ * =======================**/
 
 // PUT :/orders/:id -> update a Orders by id
 export const updatedOrderById = async (req: Request, res: Response, next: NextFunction) => {
@@ -76,7 +84,7 @@ export const updatedOrderById = async (req: Request, res: Response, next: NextFu
     if (error instanceof Error.CastError) {
       next(createHTTPError(400, 'id format not valid'))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -91,7 +99,7 @@ export const deleteOrderById = async (req: Request, res: Response, next: NextFun
     if (error instanceof mongoose.Error.CastError) {
       next(createHTTPError(400, 'id format not valid'))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }

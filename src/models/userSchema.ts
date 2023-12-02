@@ -16,7 +16,6 @@ const userSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       minlength: [3, 'Name must be at least 3 characters long'],
-      maxlength: [15, 'Name must be at most 15 characters '],
     },
     name: {
       type: String,
@@ -39,17 +38,17 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       validate: {
         validator: function (value: string) {
-          return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)
+          const emailRegex = /^([\w-\.]+@(([gmail-]{5})+\.)+[\w-]{3})?$/
+          return emailRegex.test(value)
         },
-        message: 'please enter a valid email address',
+        message: 'please give a valid email allowed format :  example@gmail.com',
       },
     },
     password: {
       type: String,
       required: [true, 'please give the password'],
       trim: true,
-      minlength: [6, 'Name must be at least 6 characters long'],
-      //set: (password: string) => bcrypt.hashSync(password, 10),
+      minlength: [6, 'Password must be at least 6 characters long'],
     },
     image: {
       type: String,
@@ -60,12 +59,20 @@ const userSchema = new Schema<IUser>(
       type: String,
       trim: true,
       required: [true, 'please give the address'],
-      minlength: [3, 'Name must be at least 3 characters long'],
+      minlength: [3, 'address must be at least 3 characters long'],
     },
     phone: {
       type: String,
       trim: true,
       required: [true, 'please give the phone number'],
+      validate: {
+        validator: function (value: string) {
+          const phoneRegex = /^(\+966|966|05|5)(5|0|3|6|4|9|1|8|7)([0-9]{7})$/
+          return phoneRegex.test(value)
+        },
+        message:
+          'please give a valid phone number allowed format :  05xxxxxxxx or +9665xxxxxxxx or 5xxxxxxxx',
+      },
     },
     isAdmin: {
       type: Boolean,

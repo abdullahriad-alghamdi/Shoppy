@@ -1,5 +1,5 @@
 /*======= External Dependencies and Modules =======*/
-import { Schema, model } from 'mongoose'
+import { Schema, model, Types } from 'mongoose'
 
 /*======= Internal Modules or Files =======*/
 // Configurations
@@ -7,11 +7,11 @@ import { dev } from '../config'
 // Types
 import { IProduct } from '../types/productTypes'
 
-const productSchema = new Schema(
+const productSchema = new Schema<IProduct>(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, 'Title is required'],
       unique: true,
       trim: true,
       minlength: [3, 'Title cannot be less than 3 characters'],
@@ -25,7 +25,6 @@ const productSchema = new Schema(
     },
     description: {
       type: String,
-      required: true,
       trim: true,
       minlength: [10, 'Description cannot be less than 10 characters'],
       maxlength: [1000, 'Description cannot be more than 1000 characters'],
@@ -37,22 +36,28 @@ const productSchema = new Schema(
       default: 0,
       trim: true,
     },
+    quantity: {
+      type: Number,
+      required: [true, 'Quantity is required'],
+      default: 0,
+      trim: true,
+    },
     countInStock: {
       type: Number,
-      required: true,
+      required: [true, 'Count in stock is required'],
       default: 0,
     },
     sold: {
       type: Number,
       default: 0,
     },
-    categories: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true,
-      },
-    ],
+    category: {
+      type: Types.ObjectId,
+      ref: 'Category',
+      required: true,
+      default: dev.app.defaultCategoryId,
+    },
+
     image: {
       type: String,
       default: dev.app.defaultImagePath,

@@ -23,16 +23,26 @@ export interface IUser extends Document {
   __v: number
 }
 
+// For admin
 export type userInputType = Omit<IUser, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '__v'>
 
-export type userUpdateType = Partial<userInputType> | null
+export type userUpdateType = Partial<userInputType>
 
+// For user Profile
+export type userInputProfileType = Omit<
+  IUser,
+  'slug' | 'createdAt' | 'updatedAt' | '__v' | 'isAdmin' | 'isBanned'
+>
+export type userUpdateProfileType = Partial<userInputProfileType>
+
+// For activation email
 export type EmailDataType = {
   email: string
   subject: string
   html: string
 }
 
+// For user isLoggedIn
 export interface CustomRequest extends Request {
   user_id?: string
 }

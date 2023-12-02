@@ -14,26 +14,54 @@ import {
   updateCategory,
 } from '../services/categoryServices'
 
+/**======================
+ **   User controllers
+ *========================**/
+
 // GET : /categories -> returned all category
 export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const categories = await getCategories()
-    // TODO: check if category is null or uncategorized
-    res.status(200).json({ message: ' All Category retrieved Successfully!', payload: categories })
-  } catch (err) {
-    next(err)
+    const data = req.query
+
+    let page = Number(data.page) || undefined
+    const limit = Number(data.limit) || undefined
+    const search = data.search as string
+    const sort = data.sort as string
+    const { categories, totalPages, currentPage } = await getCategories(page, limit, search, sort)
+
+    if (data.search) {
+      res.status(200).json({
+        message: 'Categories you are searching for:',
+        payload: categories,
+        totalPages,
+        currentPage,
+      })
+    }
+
+    res.status(200).json({
+      message: 'Categories retrieved successfully!',
+      payload: categories,
+      totalPages,
+      currentPage,
+    })
+  } catch (error) {
+    return next(error)
   }
 }
+
+/**======================
+ **   Admin controllers
+ *========================**/
 
 // GET :/categories/:slug-> returned single category
 export const getCategoryBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params
-    const newProduct = await findCategory(slug)
+    const newCategory = await findCategory(slug)
 
-    res.status(200).json({ message: 'Category retrieved successfully!', payload: newProduct })
-  } catch (err) {
-    next(err)
+    res.status(200).json({ message: 'Category retrieved successfully!', payload: newCategory })
+  } catch (error) {
+    return next(error)
   }
 }
 
@@ -44,13 +72,13 @@ export const createCategory = async (req: Request, res: Response, next: NextFunc
     const newProduct = await createNewCategory(title)
 
     res.status(201).json({ message: 'Category created successfully!', payload: newProduct })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
       res.status(400).json({ errors: errorMessages })
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(err)
+      return next(error)
     }
   }
 }
@@ -66,11 +94,11 @@ export const updateCategoryBySlug = async (req: Request, res: Response, next: Ne
     res.status(200).json({ message: 'Category updated successfully!', payload: updatedCategory })
   } catch (error) {
     if (error instanceof Error.ValidationError) {
-      const errorMessages = Object.values(error.errors).map((err) => err.message)
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
       res.status(400).json({ errors: errorMessages })
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -81,8 +109,8 @@ export const deleteCategoryBySlug = async (req: Request, res: Response, next: Ne
     const { slug } = req.params
 
     const category = await deleteCategory(slug)
-    res.status(200).json({ message: 'delete category Successfully!', payload: category },)
+    res.status(200).json({ message: 'delete category Successfully!', payload: category })
   } catch (error) {
-    next(error)
+    return next(error)
   }
 }

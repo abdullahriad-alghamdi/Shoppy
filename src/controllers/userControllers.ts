@@ -1,9 +1,15 @@
+/*======= Node.js Modules =======*/
+import fs from 'fs'
+
 /*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
 import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { Error } from 'mongoose'
 import slugify from 'slugify'
+import multer from 'multer'
+// Types
+import { CustomRequest } from '../types/userTypes'
 
 /*======= Internal Modules or Files =======*/
 // Models
@@ -26,124 +32,16 @@ import {
   deleteUser,
   createNewUser,
   findUser,
-  paginateUsers,
+  getUsers,
   updateUser,
   updateBanStatusById,
+  updateUserProfile,
+  activatingUser,
 } from '../services/userServices'
 
-import { replaceImage } from '../services/productServices'
-
-// Get: /users -> Get all users
-export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const data = req.query
-
-    let page = Number(data.page) || undefined
-    const limit = Number(data.limit) || undefined
-    const search = data.search as string
-
-    const { users, totalPages, currentPage } = await paginateUsers(page, limit, search)
-
-    res.status(200).json({
-      message: 'Get all users successfully',
-      payload: users,
-      totalPages,
-      currentPage,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-// Get: /users/:slug -> Get user by slug
-export const getUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { slug } = req.params
-
-    const user = await findUser(slug)
-    res.status(200).json({
-      message: 'Get a single user by slug successfully',
-      payload: user,
-    })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
-    } else {
-      next(err)
-    }
-  }
-}
-
-// Post: /users -> Create new user
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const file = req.file
-    const img = file?.path
-    const data = req.body
-
-    const user = await createNewUser(data, img)
-
-    res.status(201).json({
-      message: 'User created successfully',
-      payload: user,
-    })
-  } catch (error) {
-    if (error instanceof Error.ValidationError) {
-      const errorMessages = Object.values(error.errors).map((err) => err.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
-    } else {
-      next(error)
-    }
-  }
-}
-
-// Put: /users/:slug -> Update user
-export const updateUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { params, body, file } = req
-    const { slug } = params
-    const data = body
-
-    replaceImage(file, slug, data)
-
-    const user: userUpdateType = await updateUser(slug, data)
-
-    if (!user) {
-      throw createHTTPError(404, 'User not found')
-    }
-
-    res.status(200).json({
-      message: 'Update user by slug successfully',
-      payload: user,
-    })
-  } catch (error) {
-    if (error instanceof Error.ValidationError) {
-      const errorMessages = Object.values(error.errors).map((err) => err.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
-    } else {
-      next(error)
-    }
-  }
-}
-
-// Delete : /users/:slug -> delete user by slug
-export const deleteUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { slug } = req.params
-
-    const user = await deleteUser(slug)
-    res.status(200).json({
-      message: 'Delete user by slug successfully',
-      payload: user,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
+/**======================
+ **      User controllers
+ *========================**/
 
 // Create user and sending email with activation link
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -157,7 +55,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       throw createHTTPError(409, 'User already exists')
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = password && (await bcrypt.hash(password, 10))
 
     const tokenPayload = {
       username,
@@ -166,8 +64,11 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       password: hashedPassword,
       address: address,
       phone: phone,
-      imagePath: imagePath,
-      slug: username && typeof username === 'string' ? slugify(username, { lower: true }) : '',
+      image: imagePath,
+      slug:
+        username && typeof username === 'string'
+          ? slugify(username, { lower: true })
+          : slugify(name, { lower: true }),
     }
 
     // create token
@@ -181,7 +82,9 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         <h1>Hello ${name}</h1>
         <p>Please activate your account by :
         <a href="http://localhost:8080/users/activate/${token}">
-        Click here to activate your account</a></p>`,
+        Click here to activate your account</a></p>
+        <hr />
+        <p>This activation link expires in 10 minutes</p>`,
     }
 
     // send email
@@ -193,11 +96,11 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     })
   } catch (error) {
     if (error instanceof Error.ValidationError) {
-      const errorMessages = Object.values(error.errors).map((err) => err.message)
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
       res.status(400).json({ errors: errorMessages })
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -206,20 +109,11 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
 export const activateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.body.token
-    if (!token) {
-      throw createHTTPError(404, 'Please provide a token')
-    }
-
-    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey)
-    if (!decoded) {
-      throw createHTTPError(404, 'Invalid token')
-    }
-
-    await User.create(decoded)
+    const user = await activatingUser(token)
 
     res.status(201).json({
       message: 'user registered successfully',
-      payload: decoded,
+      payload: user,
     })
   } catch (error) {
     if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
@@ -227,7 +121,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
         error instanceof TokenExpiredError ? 'Token has expired' : 'Invalid token'
       next(createHTTPError(401, errorMessage))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -263,11 +157,11 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     })
   } catch (error) {
     if (error instanceof Error.ValidationError) {
-      const errorMessages = Object.values(error.errors).map((err) => err.message)
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
       res.status(400).json({ errors: errorMessages })
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -287,7 +181,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     const hashedPassword = await bcrypt.hash(password, 10)
     await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
     res.status(201).json({
-      message: `password reset successfully`,
+      message: 'Your password has been reset successfully',
     })
   } catch (error) {
     if (error instanceof TokenExpiredError || error instanceof JsonWebTokenError) {
@@ -295,8 +189,151 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
         error instanceof TokenExpiredError ? 'Token has expired' : 'Invalid token'
       next(createHTTPError(401, errorMessage))
     } else {
-      next(error)
+      return next(error)
     }
+  }
+}
+
+// Get: /users/me -> Get user profile
+export const getMe = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  try {
+    const { user_id } = req
+    const user = await User.findById(user_id)
+    res.status(200).json({
+      message: 'Get user profile successfully',
+      payload: user,
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+// Put: /users/:slug -> Update user profile
+export const updateMe = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  const { user_id } = req
+  const user = await User.findById(user_id)
+  const file = req.file
+  const img = file?.path
+  const data = req.body
+
+  if (img && user?.image) {
+    fs.unlinkSync(user.image)
+  }
+  const userUpdated = await updateUserProfile(user_id, data, img)
+  res.status(200).json({
+    message: 'Update user profile successfully',
+    payload: userUpdated,
+  })
+}
+
+/**========================
+ **      Admin controllers
+ *=========================**/
+
+// Get: /users -> Get all users
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = req.query
+
+    let page = Number(data.page) || undefined
+    const limit = Number(data.limit) || undefined
+    const search = data.search as string
+    const sort = data.sort as string
+
+    const { users, totalPages, currentPage } = await getUsers(page, limit, search, sort)
+
+    res.status(200).json({
+      message: 'Get all users successfully',
+      payload: users,
+      totalPages,
+      currentPage,
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+// Get: /users/:slug -> Get user by slug
+export const getUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slug } = req.params
+
+    const user = await findUser(slug)
+    res.status(200).json({
+      message: 'Get a single user by slug successfully',
+      payload: user,
+    })
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      return next(createHTTPError(400, errorMessages))
+    } else {
+      return next(error)
+    }
+  }
+}
+
+// Post: /users -> Create new user
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const file = req.file
+    const img = file?.path
+    const data = req.body
+    const user = await createNewUser(data, img)
+
+    res.status(201).json({
+      message: 'User added successfully',
+      payload: user,
+    })
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      return next(createHTTPError(400, errorMessages))
+    } else {
+      return next(error)
+    }
+  }
+}
+
+// Put: /users/:slug -> Update user
+export const updateUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { body, params } = req
+    const { slug } = params
+    const img = req.file?.path
+    const oldImg = await User.findOne({ slug: slug }).select('image')
+    const user = await updateUser(slug, body as userUpdateType, img)
+
+    if (img && oldImg?.image) {
+      fs.unlinkSync(oldImg.image)
+    }
+
+    res.status(200).json({
+      message: 'Update user by slug successfully',
+      payload: user,
+    })
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      return next(createHTTPError(400, errorMessages.join(', ')))
+    } else {
+      return next(error)
+    }
+  }
+}
+
+// Delete : /users/:slug -> delete user by slug
+export const deleteUserBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slug } = req.params
+
+    const user = await deleteUser(slug)
+    res.status(200).json({
+      message: 'Delete user by slug successfully',
+      payload: user,
+    })
+  } catch (error) {
+    return next(error)
   }
 }
 
@@ -310,8 +347,8 @@ export const banUser = async (req: Request, res: Response, next: NextFunction) =
       message: 'User is banned',
       payload: userUpdated,
     })
-  } catch (err) {
-    next(err)
+  } catch (error) {
+    return next(error)
   }
 }
 
@@ -324,7 +361,7 @@ export const unbannedUser = async (req: Request, res: Response, next: NextFuncti
       message: 'User is unbanned',
       payload: userUpdated,
     })
-  } catch (err) {
-    next(err)
+  } catch (error) {
+    return next(error)
   }
 }

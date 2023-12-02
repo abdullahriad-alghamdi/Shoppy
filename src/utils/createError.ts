@@ -1,7 +1,7 @@
 /*======= Internal Modules or Files =======*/
-import { Error } from '../types/productTypes'
+import { Error } from '../types/errorType'
 
-export const createHTTPError = (status: number, message: string) => {
+export const createHTTPError = (status: number, message: string | {}) => {
   const error: Error = new Error()
 
   error.statusCode = status

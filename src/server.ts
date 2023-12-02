@@ -53,9 +53,9 @@ app.use((req, res, next) => {
   try {
     const error = new Error('Route not found')
     res.status(404)
-    next(error)
+    return next(error)
   } catch (error) {
-    next(error)
+    return next(error)
   }
 })
 

@@ -1,5 +1,5 @@
 /*======= External Dependencies and Modules =======*/
-import { Document } from 'mongoose'
+import { Document, Types } from 'mongoose'
 
 /*======= Internal Modules or Files =======*/
 // Types
@@ -11,20 +11,16 @@ export interface IProduct extends Document {
   slug: string
   description: string
   price: number
+  quantity: number
   countInStock: number
   sold: number
   image: string
-  categories: ICategory['_id'][]
+  category: Types.ObjectId | ICategory
   createdAt?: Date
   updatedAt?: Date
   __v: number
 }
 
-export type productInputType = Omit<IProduct, '_id' | 'slug' | 'createdAt' | 'updatedAt' | '__v'>
+export type productInputType = Omit<IProduct, 'slug' | 'createdAt' | 'updatedAt' | '__v' | 'sold'>
 
-export type productUpdateType = Partial<productInputType> | null
-
-export interface Error {
-  message?: string
-  statusCode?: number
-}
+export type productUpdateType = Partial<productInputType>

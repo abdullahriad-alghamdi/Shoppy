@@ -7,7 +7,7 @@ import { Error } from 'mongoose'
 import { productUpdateType } from '../types/productTypes'
 // Services
 import {
-  paginateProducts,
+  getProducts,
   findProduct,
   createNewProduct,
   updateProduct,
@@ -16,6 +16,10 @@ import {
 } from '../services/productServices'
 // Utils
 import { createHTTPError } from '../utils/createError'
+
+/**======================
+ **      User controllers
+ *========================**/
 
 // Get : /products -> get all products
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,24 +32,44 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     const minPrice = Number(data.minPrice) || undefined
     const search = data.search as string
     const categoryId = (data.categoryId as string) || undefined
+    const sort = data.sort as string
 
-    const { products, totalPages, currentPage } = await paginateProducts(
+    const { products, totalPages, currentPage } = await getProducts(
       page,
       limit,
       maxPrice,
       minPrice,
       search,
-      categoryId
+      categoryId,
+      sort
     )
 
-    res.status(200).json({
-      message: 'Get all products successfully',
-      payload: products,
-      totalPages,
-      currentPage,
-    })
+    if (data.search) {
+      res.status(200).json({
+        message: 'Products you are searching for:',
+        payload: products,
+        totalPages,
+        currentPage,
+      })
+      return
+    } else if (data.categoryId) {
+      res.status(200).json({
+        message: 'Products in this category:',
+        payload: products,
+        totalPages,
+        currentPage,
+      })
+      return
+    } else {
+      res.status(200).json({
+        message: '  Products retrieved successfully!',
+        payload: products,
+        totalPages,
+        currentPage,
+      })
+    }
   } catch (error) {
-    next(error)
+    return next(error)
   }
 }
 
@@ -59,16 +83,20 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
       message: 'Get a single product by slug successfully',
       payload: product,
     })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
       res.status(400).json({ errors: errorMessages })
       next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(err)
+      return next(error)
     }
   }
 }
+
+/**========================
+ **      Admin controllers
+ *=========================**/
 
 // post : /products -> create new product
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
@@ -76,17 +104,15 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     const file = req.file
     const img = file?.path
     const data = req.body
-
     const product = await createNewProduct(data, img)
 
     res.status(201).json({ message: 'Product added successfully', payload: product })
   } catch (error) {
     if (error instanceof Error.ValidationError) {
       const errorMessages = Object.values(error.errors).map((error) => error.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
+      return next(createHTTPError(400, errorMessages))
     } else {
-      next(error)
+      return next(error)
     }
   }
 }
@@ -101,24 +127,21 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
     // replace the old image with the new image in the file system
     replaceImage(file, slug, data)
 
-    const product: productUpdateType = await updateProduct(slug, data)
+    const product: productUpdateType = data && (await updateProduct(slug, data))
     if (!product) {
-      throw {
-        message: 'Product not found',
-        statusCode: 404,
-      }
+      throw createHTTPError(404, `Product with slug ${slug} does not exist`)
     }
+
     res.status(200).json({
       message: 'Update product by slug successfully',
       payload: product,
     })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      return next(createHTTPError(400, errorMessages))
     } else {
-      next(err)
+      return next(error)
     }
   }
 }
@@ -134,13 +157,12 @@ export const deleteProductBySlug = async (req: Request, res: Response, next: Nex
       message: 'Delete product by slug successfully',
       payload: product,
     })
-  } catch (err) {
-    if (err instanceof Error.ValidationError) {
-      const errorMessages = Object.values(err.errors).map((err) => err.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      return next(createHTTPError(400, errorMessages.join(', ')))
     } else {
-      next(err)
+      return next(error)
     }
   }
 }

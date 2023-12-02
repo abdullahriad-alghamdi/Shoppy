@@ -12,21 +12,29 @@ import { createHTTPError } from '../utils/createError'
 import { productInputType, IProduct, productUpdateType } from '../types/productTypes'
 
 // paginating products with a limit of 3 products per page
-export const paginateProducts = async (
+export const getProducts = async (
   page: number = 1,
   limit: number = 3,
   maxPrice: number = 1000000,
   minPrice: number = 0,
   search: string = '',
-  categoryId?: string
+  categoryId?: string,
+  sort: string = 'desc'
 ) => {
   let skip = Math.max(0, (page - 1) * limit)
   const count = await Product.countDocuments()
   const totalPages = Math.ceil(count / limit)
+  const sortBy = sort === 'asc' ? 1 : sort === 'desc' ? -1 : -1
+
   // if the page is greater than the total pages, set the page to the last page
   if (page > totalPages) {
     page = totalPages
     skip = Math.max(0, (page - 1) * limit)
+  }
+  const options = {
+    updatedAt: 0,
+    createdAt: 0,
+    __v: 0,
   }
 
   let filter: any = {
@@ -46,18 +54,18 @@ export const paginateProducts = async (
     filter.category = { $eq: categoryId }
   }
 
-  const products = await Product.find(filter)
+  const products = await Product.find(filter, options)
     .skip(skip)
     .limit(limit)
-    .populate('categories')
-    .sort({ price: -1 })
+    .populate('category', 'title')
+    .sort({ price: sortBy })
 
   return { products, totalPages, currentPage: page }
 }
 
 // getting a single product by slug
 export const findProduct = async (slug: string) => {
-  const product = await Product.findOne({ slug: slug }).populate('categories')
+  const product = await Product.findOne({ slug: slug }).populate('category')
   if (!product) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
@@ -66,29 +74,38 @@ export const findProduct = async (slug: string) => {
 
 // creating new product with image
 export const createNewProduct = async (product: IProduct, image: string | undefined) => {
-  const { title } = product
+  const { title, sold, quantity, countInStock } = product
 
   const isProductExist = await Product.exists({ title: title })
   if (isProductExist) {
     throw createHTTPError(409, `Product with title ${title} already exists`)
   }
-  const slug = title && typeof title === 'string' ? slugify(title, { lower: true }) : ''
-  const newProduct = new Product({
+  const slug = title && typeof title === 'string' && slugify(title, { lower: true })
+  const newProduct = await Product.create({
     ...product,
     slug: slug,
     image: image,
+    sold: quantity - countInStock > 0 ? quantity - countInStock : sold,
   })
+
   newProduct.save()
   return newProduct
 }
 
 // updating product by slug
 export const updateProduct = async (slug: string, product: productUpdateType) => {
-  const title = product?.title
+  const { title, sold, quantity, countInStock } = product as IProduct
 
   const isProductExist = await Product.exists({ slug: slug })
   if (!isProductExist) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
+  }
+
+  if (title) {
+    const isTitleExist = await Product.exists({ title: title })
+    if (isTitleExist) {
+      throw createHTTPError(409, `Product with title ${title} already exists`)
+    }
   }
 
   const updatedProduct = await Product.findOneAndUpdate(
@@ -97,6 +114,7 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
       ...product,
       slug: title && typeof title === 'string' ? slugify(title, { lower: true }) : slug,
       title,
+      sold: quantity - countInStock > 0 ? quantity - countInStock : sold,
     },
     { new: true }
   )

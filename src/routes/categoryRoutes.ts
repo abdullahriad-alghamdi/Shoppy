@@ -10,6 +10,7 @@ import {
   updateCategoryBySlug,
   deleteCategoryBySlug,
 } from '../controllers/categoryControllers'
+import { isLoggedIn, isAdmin } from '../middlewares/auth'
 
 const router = Router()
 
@@ -20,12 +21,12 @@ router.get('/', getAllCategories)
 router.get('/:slug', getCategoryBySlug)
 
 // POST : /category ->  create new category
-router.post('/', createCategory)
+router.post('/', isLoggedIn, isAdmin, createCategory)
 
 // PUT : /category/:slug -> update single category by slug
-router.put('/:slug', updateCategoryBySlug)
+router.put('/:slug', isLoggedIn, isAdmin, updateCategoryBySlug)
 
 // DELETE : /category/:slug -> delete single category by slug
-router.delete('/:slug', deleteCategoryBySlug)
+router.delete('/:slug', isLoggedIn, isAdmin, deleteCategoryBySlug)
 
 export default router

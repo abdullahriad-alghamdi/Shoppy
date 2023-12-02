@@ -21,7 +21,7 @@ export const login = async (email: string, password: string) => {
   }
 
   if (usersExist?.isBanned) {
-    throw createHTTPError(404, 'Unauthorized, you are banned')
+    throw createHTTPError(403, 'Unauthorized access, you are banned please contact admin@gmail.com')
   }
   return usersExist
 }

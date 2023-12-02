@@ -14,13 +14,12 @@ let categoryId = ''
 let newCategory = {
   title: 'smartphone',
 }
-let newProduct = {
+let newproduct = {
   title: 'iphone',
   description: 'iPhone 15 Pro Max',
   price: 5500,
   countInStock: 8,
-  sold: 0,
-  categories: '',
+  category: '',
 }
 let user = {
   username: 'mohammed',
@@ -46,7 +45,8 @@ let accessToken = ''
 let server: Server | null = null
 beforeAll(async () => {
   try {
-    server = app.listen(3004)
+    const port: string | number = dev.app.port
+    server = app.listen(port)
     await mongoose.connect(dev.db.url)
     console.log('Database connected successfully')
   } catch (error) {
@@ -85,7 +85,7 @@ describe('Category Routes', () => {
     const slug = slugify(newCategory.title)
     const response = await request(app).get(`/categories/${slug}`)
     categoryId = response.body.payload._id
-    newProduct.categories = categoryId
+    newproduct.category = categoryId
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Category retrieved successfully!')
     expect(response.body.payload).toBeInstanceOf(Object)
@@ -97,10 +97,12 @@ describe('Products Routes', () => {
   it('POST /products', async () => {
     const response = await request(app)
       .post('/products')
-      .field(newProduct)
+      .field(newproduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
+    console.log(response)
+    expect(response.body.message).toBe('Product added successfully')
     expect(response.status).toBe(201)
-  })
+  }, 10000)
   it('GET /products', async () => {
     const response = await request(app).get('/products')
     expect(response.status).toBe(200)
@@ -108,16 +110,16 @@ describe('Products Routes', () => {
     expect(response.body.currentPage).toBe(1)
   })
   it('Update /products', async () => {
-    const slug = slugify(newProduct.title)
-    newProduct.title = 'samsung'
+    const slug = slugify(newproduct.title)
+    newproduct.title = 'samsung'
     const response = await request(app)
       .put(`/products/${slug}`)
-      .field(newProduct)
+      .field(newproduct)
       .attach('image', Buffer.from('test content'), 'aa.png')
     expect(response.status).toBe(200)
   })
   it('Delete /products', async () => {
-    const slug = slugify(newProduct.title)
+    const slug = slugify(newproduct.title)
     const response = await request(app).delete(`/products/${slug}`)
     expect(response.status).toBe(200)
   })
@@ -134,8 +136,11 @@ describe('User Crud', () => {
       .post('/users/register')
       .field(user)
       .attach('image', Buffer.from('test content'), 'aa.png')
+    console.log(response)
+
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Check your email to verify your account')
+    console.log(response)
 
     token = response.body.token
   })
@@ -149,9 +154,11 @@ describe('User Crud', () => {
       .post(`/auth/login`)
       .send({ email: user.email, password: user.password })
     expect(response.status).toBe(200)
-    expect(response.body.message).toBe('Welcome back')
+    expect(response.body.message).toBe(`Welcome ${user.name}!`)
+
     const setCookieHeader = response.headers['set-cookie']
     accessToken = setCookieHeader[0].split('=')[1].split(';')[0]
+    console.log('accessToken', accessToken)
   })
   it('DELETE /users/:slug Verify for admin ', async () => {
     const slug = slugify(user.username)
@@ -165,8 +172,9 @@ describe('User Crud', () => {
     const response = await request(app)
       .post(`/auth/logout`)
       .send({ email: user.email, password: user.password })
+      .set('Cookie', [`access_token=${accessToken}`])
     expect(response.status).toBe(200)
-    expect(response.body.message).toBe('Logged out successfully')
+    expect(response.body.message).toBe('Logout successfully')
   })
   it('Post /user/forgot-password', async () => {
     const response = await request(app)
@@ -181,7 +189,7 @@ describe('User Crud', () => {
       .post(`/users/reset-password`)
       .send({ token: passwordToken, password: user.password })
     expect(response.status).toBe(201)
-    expect(response.body.message).toBe('Password updated successfully')
+    expect(response.body.message).toBe('password reset successfully')
   })
 })
 describe('Admin Crud', () => {
@@ -190,8 +198,8 @@ describe('Admin Crud', () => {
       .post('/users/')
       .field(adminUser)
       .attach('image', Buffer.from('test content'), 'aa.png')
-    expect(response.status).toBe(201)
     expect(response.body.message).toBe('User created successfully')
+    expect(response.status).toBe(201)
     expect(response.body.payload).toBeInstanceOf(Object)
     expect(response.body.payload.name).toBe(adminUser.name)
 
@@ -202,7 +210,7 @@ describe('Admin Crud', () => {
       .post(`/auth/login`)
       .send({ email: adminUser.email, password: adminUser.password })
     expect(response.status).toBe(200)
-    expect(response.body.message).toBe('Welcome back')
+    expect(response.body.message).toBe(`Welcome ${adminUser.name}!`)
     const setCookieHeader = response.headers['set-cookie']
     accessToken = setCookieHeader[0].split('=')[1].split(';')[0]
   })
