@@ -10,6 +10,7 @@ import {
   updateCategoryBySlug,
   deleteCategoryBySlug,
 } from '../controllers/categoryControllers'
+// Middlewares
 import { isLoggedIn, isAdmin } from '../middlewares/auth'
 
 const router = Router()

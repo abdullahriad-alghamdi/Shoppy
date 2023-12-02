@@ -174,7 +174,6 @@ export const updateBanStatusById = async (id: string, isBanned: boolean) => {
 }
 
 // update User Profile
-
 export const updateUserProfile = async (
   id: string | undefined,
   user: userUpdateProfileType,
@@ -220,6 +219,55 @@ export const updateUserProfile = async (
   }
 }
 
+// register user
+export const registeringUser = async (user: IUser, imagePath: string | undefined) => {
+  try {
+    const { username, name, email, password, address, phone } = user
+
+    const isUserExists = await User.exists({ email: email })
+
+    if (isUserExists) {
+      throw createHTTPError(409, 'User already exists')
+    }
+
+    const hashedPassword = password && (await bcrypt.hash(password, 10))
+
+    const tokenPayload = {
+      username,
+      name: name,
+      email: email,
+      password: hashedPassword,
+      address: address,
+      phone: phone,
+      image: imagePath,
+      slug:
+        username && typeof username === 'string'
+          ? slugify(username, { lower: true })
+          : slugify(name, { lower: true }),
+    }
+
+    // create token
+    const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
+
+    // create email data with url and token
+    const emailData = {
+      email: email,
+      subject: 'Account activation link',
+      html: `
+        <h1>Hello ${name}</h1>
+        <p>Please activate your account by :
+        <a href="http://localhost:8080/users/activate/${token}">
+        Click here to activate your account</a></p>
+        <hr />
+        <p>This activation link expires in 10 minutes</p>`,
+    }
+
+    return { emailData, token }
+  } catch (error) {
+    throw error
+  }
+}
+
 // activate user
 export const activatingUser = async (token: string) => {
   try {
@@ -238,6 +286,72 @@ export const activatingUser = async (token: string) => {
         throw createHTTPError(409, 'User already exists')
       }
       await User.create(decoded)
+    } else {
+      throw createHTTPError(404, 'Invalid token')
+    }
+    return decoded
+  } catch (error) {
+    throw error
+  }
+}
+
+// forgot password
+export const resetMyPasswordProcess = async (email: string) => {
+  try {
+    const isUserExists = await User.exists({ email: email })
+
+    if (!isUserExists) {
+      throw createHTTPError(404, 'User does not exist')
+    }
+
+    const tokenPayload = {
+      email: email,
+    }
+
+    // create token
+    const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
+
+    // create email data with url and token
+    const emailData = {
+      email: email,
+      subject: 'Password reset link',
+      html: `
+        <h1>Hello</h1>
+        <p>Please reset your password by :
+        <a href="http://localhost:8080/users/reset-password/${token}">
+        Click here to reset your password</a></p>
+        <hr />
+        <p>This reset password link expires in 10 minutes</p>`,
+    }
+
+    return { emailData, token }
+  } catch (error) {
+    throw error
+  }
+}
+
+// reset password
+export const resetThePassword = async (token: string, password: string) => {
+  try {
+    if (!token) {
+      throw createHTTPError(404, 'Please provide a token')
+    }
+
+    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey)
+    if (!decoded) {
+      throw createHTTPError(404, 'Invalid token')
+    }
+
+    if (typeof decoded === 'object' && 'email' in decoded) {
+      const isUserExists = await User.exists({ email: decoded.email })
+
+      if (!isUserExists) {
+        throw createHTTPError(404, 'User does not exist')
+      }
+
+      const hashedPassword = password && (await bcrypt.hash(password, 10))
+
+      await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
     } else {
       throw createHTTPError(404, 'Invalid token')
     }

@@ -36,7 +36,10 @@ import {
   updateUser,
   updateBanStatusById,
   updateUserProfile,
+  registeringUser,
   activatingUser,
+  resetMyPasswordProcess,
+  resetThePassword,
 } from '../services/userServices'
 
 /**======================
@@ -46,46 +49,8 @@ import {
 // Create user and sending email with activation link
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, name, email, password, address, phone } = req.body
     const imagePath = req.file?.path
-
-    const isUserExists = await User.exists({ email: email })
-
-    if (isUserExists) {
-      throw createHTTPError(409, 'User already exists')
-    }
-
-    const hashedPassword = password && (await bcrypt.hash(password, 10))
-
-    const tokenPayload = {
-      username,
-      name: name,
-      email: email,
-      password: hashedPassword,
-      address: address,
-      phone: phone,
-      image: imagePath,
-      slug:
-        username && typeof username === 'string'
-          ? slugify(username, { lower: true })
-          : slugify(name, { lower: true }),
-    }
-
-    // create token
-    const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
-
-    // create email data with url and token
-    const emailData = {
-      email: email,
-      subject: 'Account activation link',
-      html: `
-        <h1>Hello ${name}</h1>
-        <p>Please activate your account by :
-        <a href="http://localhost:8080/users/activate/${token}">
-        Click here to activate your account</a></p>
-        <hr />
-        <p>This activation link expires in 10 minutes</p>`,
-    }
+    const { emailData, token } = await registeringUser(req.body, imagePath as string)
 
     // send email
     await handelSendEmail(emailData)
@@ -130,25 +95,7 @@ export const activateUser = async (req: Request, res: Response, next: NextFuncti
 export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body
-    const isUserExists = await User.exists({ email: email })
-    if (!isUserExists) {
-      throw createHTTPError(404, 'User not found')
-    }
-    const tokenPayload = {
-      email: email,
-    }
-    // create token
-    const token = createJSONWebToken({ email }, dev.app.jwtUserActivationKey, '10m')
-    // create email data with url and token
-    const emailData = {
-      email: email,
-      subject: 'Reset password link',
-      html: `
-          <h1>Hello</h1>
-          <p>Please reset your password by :
-          <a href="http://localhost:8080/users/reset-password/${token}">
-          Click here to reset your password</a></p>`,
-    }
+    const { emailData, token } = await resetMyPasswordProcess(email)
     // send email
     await handelSendEmail(emailData)
     res.status(200).json({
@@ -171,15 +118,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
   try {
     const { token } = req.body
     const { password } = req.body
-    if (!token) {
-      throw createHTTPError(404, 'Please provide a token')
-    }
-    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey) as { email: string }
-    if (!decoded) {
-      throw createHTTPError(404, 'Invalid token')
-    }
-    const hashedPassword = await bcrypt.hash(password, 10)
-    await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
+    await resetThePassword(token, password)
     res.status(201).json({
       message: 'Your password has been reset successfully',
     })

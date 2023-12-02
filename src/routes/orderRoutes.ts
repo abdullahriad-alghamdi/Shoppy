@@ -9,6 +9,7 @@ import {
   updatedOrderById,
   deleteOrderById,
 } from '../controllers/orderControllers'
+// Middlewares
 import { isLoggedIn, isAdmin } from '../middlewares/auth'
 
 const router = Router()
