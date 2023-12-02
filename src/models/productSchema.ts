@@ -60,9 +60,7 @@ const productSchema = new Schema<IProduct>(
 
     image: {
       type: String,
-      default: dev.app.defaultImagePath,
-      required: true,
-    },
+      default: dev.app.defaultImagePath,    },
   },
   { timestamps: true }
 )

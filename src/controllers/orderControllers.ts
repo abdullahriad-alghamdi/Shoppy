@@ -5,80 +5,75 @@ import mongoose, { Error } from 'mongoose'
 /*======= Internal Modules or Files =======*/
 // Services
 import {
-  getOrders,
-  findOrder,
-  createNewOrder,
   updateOrder,
   deleteOrder,
 } from '../services/orderServices'
 // Utils
 import { createHTTPError } from '../utils/createError'
+import { Order } from '../models/orderSchema'
+import { CustomRequest } from '../types/userTypes'
+import { IOrderProduct } from '../types/orderTypes'
 
 /**======================
  **      user controllers
  *========================**/
-
-// GET : /orders -> returned all Orders
-export const getAllOrders = async (req: Request, res: Response, next: NextFunction) => {
+// POST :/orders/process-payment -> add new user order
+export const handlePayment = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const orders = await getOrders()
-    res.status(200).json({
-      success: true,
-      message: 'Orders fetched successfully',
-      payload: orders,
+    const { cartItem } = req.body
+
+    const newOrder = new Order({
+      products: cartItem.products,
+      payment: cartItem.payment,
+      buyer: req.user_id,
     })
+    //Update sold value
+    // total
+
+    await newOrder.save()
+    res.status(201).send({ message: 'Payment was successfully and order was created',payload: newOrder})
   } catch (error) {
-    return next(error)
+    next(error)
   }
 }
-
-// GET :/orders/:id-> returned single Orders
-export const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
+// GET :/orders/:id -> get user order
+export const getOrderForUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params
+    //can use query for id cause user already logged in or pass id for admin
+    const user_id = req.params.id
+    // const user_id = req.user_id
+    const order = await Order.find({ buyer: user_id })
+      .populate('buyer', 'name address phone -_id')
+      .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
 
-    const newOrder = await findOrder(id)
-
-    res.status(200).json({ message: 'Get Category Successfully!', payload: newOrder })
+    res.status(200).send({ message: 'Orders are returned for the user,', payload: order })
   } catch (error) {
-    if (error instanceof mongoose.Error.CastError) {
-      next(createHTTPError(400, 'id format not valid'))
-    } else {
-      return next(error)
-    }
-  }
-}
-
-// POST :/orders/-> Create new Orders
-export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const newOrder = await createNewOrder(req.body)
-
-    res.status(201).json({
-      message: 'Added New Order Successfully!',
-      payload: newOrder,
-    })
-  } catch (error) {
-    if (error instanceof Error.ValidationError) {
-      const errorMessages = Object.values(error.errors).map((error) => error.message)
-      res.status(400).json({ errors: errorMessages })
-      next(createHTTPError(400, errorMessages.join(', ')))
-    } else {
-      return next(error)
-    }
+    next(error)
   }
 }
 
 /** ======================
  **     Admin controllers
  * =======================**/
+// GET :/orders/:id -> Get all orders
+ export const getOrdersAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
+  try {
+    const orders = await Order.find()
+      .populate('buyer', 'name address phone')
+      .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
+    // .populate('user' {_id:0})   => not showing id
+    res.status(200).send({ message: 'get all orders',payload:orders })
+  } catch (error) {
+    next(error)
+  }
+}
 
 // PUT :/orders/:id -> update a Orders by id
 export const updatedOrderById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id
     const order = req.body
-    const updatedOrder = await updateOrder(id, order)
+    const updatedOrder = await updateOrder(id, { ...order, status: order.status })
     res.status(200).json({ message: 'Updated order successfully!', payload: updatedOrder })
   } catch (error) {
     if (error instanceof Error.CastError) {
@@ -103,3 +98,5 @@ export const deleteOrderById = async (req: Request, res: Response, next: NextFun
     }
   }
 }
+
+

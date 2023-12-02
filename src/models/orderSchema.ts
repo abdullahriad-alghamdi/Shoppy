@@ -5,21 +5,25 @@ import { Schema, model } from 'mongoose'
 // Types
 import { IProduct } from '../types/productTypes'
 import { IOrder } from '../types/orderTypes'
+import { number, object } from 'joi'
 
-const orderSchema = new Schema(
+const orderSchema = new Schema<IOrder>(
   {
-    user: {
+    buyer: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
     products: [
-      {
+{      product:{
         type: Schema.Types.ObjectId,
         ref: 'Product',
         required: true,
       },
+      quantity:{type:Number,require:true,trim:true}}
     ],
+    payment:{type:Object},
+    status:{type:String,enum:['Not Processed', 'Processed' ,'Shipped' ,'Delivered' ,'Canceled'] ,default:'Not Processed'}
   },
   { timestamps: true }
 )

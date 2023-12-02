@@ -26,7 +26,7 @@ router.get('/', getAllProducts)
 router.get('/:slug', getProductBySlug)
 
 // Post : /products -> create new product
-router.post('/', isLoggedIn, isAdmin, uploadProductImg, createProduct)
+router.post('/', isLoggedIn, isAdmin, uploadProductImg,productValidate, createProduct)
 
 // Put : /products/:slug -> update product by slug
 router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg, updateProductBySlug)

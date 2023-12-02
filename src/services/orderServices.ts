@@ -7,31 +7,31 @@ import { IOrder } from '../types/orderTypes'
 import { createHTTPError } from '../utils/createError'
 
 // get all orders
-export const getOrders = async () => {
-  const category = await Order.find().populate('products').populate('user')
-  return category
-}
+// export const getOrders = async () => {
+//   const category = await Order.find().populate('products').populate('user')
+//   return category
+// }
 
 // get single order
-export const findOrder = async (_id: string) => {
-  const singleOrder = await Order.findById(_id).populate('products').populate('user')
-  if (!singleOrder) {
-    throw createHTTPError(404, `Order not found with id ${_id}`)
-  }
-  return singleOrder
-}
+// export const findOrder = async (_id: string) => {
+//   const singleOrder = await Order.findById(_id).populate('products').populate('user')
+//   if (!singleOrder) {
+//     throw createHTTPError(404, `Order not found with id ${_id}`)
+//   }
+//   return singleOrder
+// }
 
 // create new order
-export const createNewOrder = async (order: IOrder) => {
-  // an array of products and a user id inside the body
-  const { products, user } = order
-  // create a new order
-  const newOrder = await Order.create({ products, user })
-  // validate the new order
-  await newOrder.validate()
-  // return the new order
-  return newOrder
-}
+// export const createNewOrder = async (order: IOrder) => {
+//   // an array of products and a user id inside the body
+//   const { products, user } = order
+//   // create a new order
+//   const newOrder = await Order.create({ products, user })
+//   // validate the new order
+//   await newOrder.validate()
+//   // return the new order
+//   return newOrder
+// }
 
 // update order
 export const updateOrder = async (id: string, order: IOrder) => {

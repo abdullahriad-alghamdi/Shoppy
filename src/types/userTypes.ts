@@ -13,7 +13,7 @@ export interface IUser extends Document {
   email: string
   password: string
   image?: string
-  orders: IOrder['user'][]
+  orders: IOrder['buyer'][]
   address: string
   phone: string
   isAdmin: boolean

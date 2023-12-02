@@ -22,6 +22,7 @@ import {
 // Middlewares
 import { uploadUserImg } from '../middlewares/uploadFiles'
 import { isLoggedOut, isAdmin, isLoggedIn } from '../middlewares/auth'
+import { adminValidate, userValidate } from '../middlewares/validation'
 
 const router = Router()
 
@@ -61,7 +62,7 @@ router.get('/:slug', isLoggedIn, isAdmin, getUserBySlug)
 router.put('/:slug', isLoggedIn, isAdmin, uploadUserImg, updateUserBySlug)
 
 // POST : /users -> Create New User
-router.post('/', isLoggedIn, isAdmin, uploadUserImg, createUser)
+router.post('/', uploadUserImg,adminValidate, createUser)
 
 // DELETE : /users/:slug -> Delete User By Slug
 router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
