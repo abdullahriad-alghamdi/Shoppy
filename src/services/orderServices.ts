@@ -27,3 +27,34 @@ export const deleteOrder = async (id: string) => {
   }
   return deletedOrder
 }
+export const saveOrder = async(order:IOrder,userId:string)=>{ 
+  const newOrder = new Order({
+    products: order.products,
+    payment: order.payment,
+    buyer: userId,
+  })
+
+  await newOrder.save()
+  return newOrder
+}
+
+export const singleOrder = async(user_id:string)=>{
+      //can use query for id cause user already logged in or pass id for admin
+      // const user_id = req.user_id
+      const order = await Order.find({ buyer: user_id })
+        .populate('buyer', 'name address phone -_id')
+        .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
+        if (!order) {
+          throw createHTTPError(404, `Order with user: ${user_id} does not exist`)
+        }
+        return order
+  
+}
+
+export const allOrders = async()=>{
+  const orders = await Order.find()
+  .populate('buyer', 'name address phone -_id ')
+  .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
+    return orders
+
+}

@@ -7,6 +7,9 @@ import mongoose, { Error } from 'mongoose'
 import {
   updateOrder,
   deleteOrder,
+  saveOrder,
+  singleOrder,
+  allOrders,
 } from '../services/orderServices'
 // Utils
 import { createHTTPError } from '../utils/createError'
@@ -21,16 +24,8 @@ import { IOrderProduct } from '../types/orderTypes'
 export const handlePayment = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const  order  = req.body
-
-    const newOrder = new Order({
-      products: order.products,
-      payment: order.payment,
-      buyer: req.user_id,
-    })
-    //Update sold value
-    // total
-
-    await newOrder.save()
+    const user_id = req.user_id
+    const newOrder = await saveOrder(order,user_id!)
     res.status(201).send({ message: 'Payment was successfully and order was created',payload: newOrder})
   } catch (error) {
     next(error)
@@ -39,13 +34,8 @@ export const handlePayment = async (req: CustomRequest, res: Response, next: Nex
 // GET :/orders/:id -> get user order
 export const getOrderForUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    //can use query for id cause user already logged in or pass id for admin
     const user_id = req.params.id
-    // const user_id = req.user_id
-    const order = await Order.find({ buyer: user_id })
-      .populate('buyer', 'name address phone -_id')
-      .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
-
+    const order = await singleOrder(user_id)
     res.status(200).send({ message: 'Orders are returned for the user,', payload: order })
   } catch (error) {
     next(error)
@@ -58,9 +48,7 @@ export const getOrderForUser = async (req: CustomRequest, res: Response, next: N
 // GET :/orders/:id -> Get all orders
  export const getOrdersAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const orders = await Order.find()
-      .populate('buyer', 'name address phone -_id ')
-      .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
+    const orders = await allOrders()
     res.status(200).send({ message: 'get all orders',payload:orders })
   } catch (error) {
     next(error)
