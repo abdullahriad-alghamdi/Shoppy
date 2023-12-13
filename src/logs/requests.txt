@@ -2488,3 +2488,9 @@ Method: POST, Status: 200, Path: /categories, Date: 12/3/2023, Time: 11:38:25 AM
 Method: POST, Status: 200, Path: /products, Date: 12/3/2023, Time: 11:38:34 AM
 Method: POST, Status: 200, Path: /products, Date: 12/3/2023, Time: 11:38:41 AM
 Method: POST, Status: 200, Path: /products, Date: 12/3/2023, Time: 11:39:01 AM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:05:33 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:06:28 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:06:32 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:07:14 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:07:17 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:07:34 PM
