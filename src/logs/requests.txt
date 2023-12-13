@@ -2494,3 +2494,8 @@ Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:06:
 Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:07:14 PM
 Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:07:17 PM
 Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 12:07:34 PM
+Method: GET, Status: 200, Path: /, Date: 12/13/2023, Time: 12:38:07 PM
+Method: GET, Status: 200, Path: /, Date: 12/13/2023, Time: 12:51:11 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 1:23:47 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 1:23:59 PM
+Method: POST, Status: 200, Path: /users/register, Date: 12/13/2023, Time: 1:24:39 PM

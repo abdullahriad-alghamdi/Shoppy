@@ -20,11 +20,8 @@ import authRoutes from './routes/authRoutes'
 import cookieParser from 'cookie-parser'
 
 const app: Application = express()
-const port: string | number = dev.app.port
 
-// app.listen(port, () => {
-//   console.log(`Server listening on port http://localhost:${port}`)
-// })
+
 connectDB()
 
 // Use middlewares
