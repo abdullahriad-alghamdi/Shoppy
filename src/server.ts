@@ -9,7 +9,7 @@ import { connectDB } from './config/db'
 
 // Middlewares
 import { errorHandler } from './middlewares/errorHandler'
-import myLogger from './middlewares/logger'
+// import myLogger from './middlewares/logger'
 
 // Routes
 import productRoutes from './routes/productRoutes'
@@ -28,7 +28,7 @@ connectDB()
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(myLogger)
+// app.use(myLogger)
 app.use(cookieParser())
 
 // Use routes
