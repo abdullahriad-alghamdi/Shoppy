@@ -32,6 +32,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 // Use routes
+app.use('/public',express.static('public'))
 app.use('/products', productRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/users', userRoutes)
