@@ -9,7 +9,7 @@ import { connectDB } from './config/db'
 
 // Middlewares
 import { errorHandler } from './middlewares/errorHandler'
-import myLogger from './middlewares/logger'
+// import myLogger from './middlewares/logger'
 
 // Routes
 import productRoutes from './routes/productRoutes'
@@ -20,21 +20,19 @@ import authRoutes from './routes/authRoutes'
 import cookieParser from 'cookie-parser'
 
 const app: Application = express()
-const port: string | number = dev.app.port
 
-app.listen(port, () => {
-  console.log(`Server listening on port http://localhost:${port}`)
-  connectDB()
-})
+
+connectDB()
 
 // Use middlewares
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(myLogger)
+// app.use(myLogger)
 app.use(cookieParser())
 
 // Use routes
+app.use('/public',express.static('public'))
 app.use('/products', productRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/users', userRoutes)
