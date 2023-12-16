@@ -5,22 +5,26 @@ import { Document } from 'mongoose'
 // Types
 import { IUser } from '../types/userTypes'
 import { IProduct } from '../types/productTypes'
-export interface IOrderProduct{
-  product: IProduct['_id'],
-  quantity:Number
-}
-export interface IPayment{
-  paymentMethod :'Credit Card'| 'Apple Pay'
-  amount:number
-}
-export interface IShipping{
-}
 
+export interface IOrderProduct {
+  product: IProduct['_id']
+  quantity: Number
+}
+export interface IPayment {
+  paymentMethod: 'Credit Card' | 'Apple Pay'
+  amount: number
+}
+export interface IShipping {
+  address: string
+  city: string
+  postalCode: string
+  country: string
+}
 
 export interface IOrder extends Document {
   buyer: IUser['_id']
   products: IOrderProduct[]
-  payment:IPayment
-  status:'Not Processed'| 'Processed' |'Shipped' | 'Delivered' | 'Canceled'
-  // shipping:IShipping
+  payment: IPayment
+  status: 'Not Processed' | 'Processed' | 'Shipped' | 'Delivered' | 'Canceled'
+  shipping: IShipping
 }

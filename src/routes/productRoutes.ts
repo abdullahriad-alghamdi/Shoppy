@@ -19,17 +19,24 @@ import { productValidate } from '../middlewares/validation'
 
 const router: Router = Router()
 
+/**======================
+ **     All Routes
+ *========================**/
 // Get : /products -> get all products
 router.get('/', getAllProducts)
 
 // Get : /products/:slug -> get product by slug
 router.get('/:slug', getProductBySlug)
 
+/**======================
+ **    Admin Routes
+ *========================**/
+
 // Post : /products -> create new product
-router.post('/', isLoggedIn, isAdmin, uploadProductImg,productValidate, createProduct)
+router.post('/', isLoggedIn, isAdmin, uploadProductImg, productValidate, createProduct)
 
 // Put : /products/:slug -> update product by slug
-router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg,productValidate, updateProductBySlug)
+router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg, productValidate, updateProductBySlug)
 
 // Delete : /products/:slug -> delete product by slug
 router.delete('/:slug', isLoggedIn, isAdmin, deleteProductBySlug)

@@ -28,13 +28,42 @@ const router = Router()
 
 /**======================
  **    Users Routes
- *========================**/
+ *=======================**/
 
 // POST : /users/process-register -> Process Registration For New User
-router.post('/register', isLoggedOut, uploadUserImg,userValidate, registerUser)
+router.post('/register', isLoggedOut, uploadUserImg, userValidate, registerUser)
 
 // POST : /users/activate
 router.post('/activate', activateUser)
+
+/**======================
+ **    Admin Routes
+ *=======================**/
+
+// GET : /users -> Get All Users
+router.get('/', isLoggedIn, isAdmin, getAllUsers)
+
+// GET : /users/:slug -> Get User By Slug
+router.get('/:slug', isLoggedIn, isAdmin, getUserBySlug)
+
+// PUT : /users/:slug -> Update User By Slug
+router.put('/:slug', isLoggedIn, isAdmin, uploadUserImg, updateUserBySlug)
+
+// POST : /users -> Create New User
+router.post('/', uploadUserImg, adminValidate, createUser)
+
+// DELETE : /users/:slug -> Delete User By Slug
+router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
+
+// POST : /users/ban/:id -> returned Updated user
+router.put('/ban/:id', isLoggedIn, isAdmin, userValidate, banUser)
+
+// POST : /users/ban/:id -> returned Updated user
+router.put('/unban/:id', isLoggedIn, isAdmin, userValidate, unbannedUser)
+
+/**======================
+ **    All Routes
+ *=======================**/
 
 // GET : /users/me -> Get User By id
 router.get('/me', isLoggedIn, getMe)
@@ -47,30 +76,5 @@ router.post('/forgot-password', isLoggedOut, forgotPassword)
 
 // POST : /users/reset-password -> Process Reset Password For User
 router.post('/reset-password', isLoggedOut, resetPassword)
-
-/**======================
- **    Admin Routes
- *========================**/
-
-// GET : /users -> Get All Users
-router.get('/', isLoggedIn, isAdmin, getAllUsers)
-
-// GET : /users/:slug -> Get User By Slug
-router.get('/:slug', isLoggedIn, isAdmin, getUserBySlug)
-
-// PUT : /users/:slug -> Update User By Slug
-router.put('/:slug', isLoggedIn, isAdmin, uploadUserImg, updateUserBySlug)
-
-// POST : /users -> Create New User
-router.post('/', uploadUserImg,adminValidate, createUser)
-
-// DELETE : /users/:slug -> Delete User By Slug
-router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
-
-// POST : /users/ban/:id -> returned Updated user
-router.put('/ban/:id', isLoggedIn, isAdmin,userValidate, banUser)
-
-// POST : /users/ban/:id -> returned Updated user
-router.put('/unban/:id', isLoggedIn, isAdmin,userValidate, unbannedUser)
 
 export default router

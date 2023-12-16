@@ -13,9 +13,7 @@ import {
 } from '../services/orderServices'
 // Utils
 import { createHTTPError } from '../utils/createError'
-import { Order } from '../models/orderSchema'
 import { CustomRequest } from '../types/userTypes'
-import { IOrderProduct } from '../types/orderTypes'
 
 /**======================
  **      user controllers
@@ -23,14 +21,17 @@ import { IOrderProduct } from '../types/orderTypes'
 // POST :/orders/process-payment -> add new user order
 export const handlePayment = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    const  order  = req.body
+    const order = req.body
     const user_id = req.user_id
-    const newOrder = await saveOrder(order,user_id!)
-    res.status(201).send({ message: 'Payment was successfully and order was created',payload: newOrder})
+    const newOrder = await saveOrder(order, user_id!)
+    res
+      .status(201)
+      .send({ message: 'Payment was successfully and order was created', payload: newOrder })
   } catch (error) {
     next(error)
   }
 }
+
 // GET :/orders/:id -> get user order
 export const getOrderForUser = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -45,11 +46,12 @@ export const getOrderForUser = async (req: CustomRequest, res: Response, next: N
 /** ======================
  **     Admin controllers
  * =======================**/
+
 // GET :/orders/:id -> Get all orders
- export const getOrdersAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
+export const getOrdersAdmin = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const orders = await allOrders()
-    res.status(200).send({ message: 'get all orders',payload:orders })
+    res.status(200).send({ message: 'get all orders', payload: orders })
   } catch (error) {
     next(error)
   }
@@ -83,5 +85,3 @@ export const deleteOrderById = async (req: Request, res: Response, next: NextFun
     }
   }
 }
-
-

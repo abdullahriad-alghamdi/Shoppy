@@ -5,7 +5,6 @@ import { Schema, model } from 'mongoose'
 // Types
 import { IProduct } from '../types/productTypes'
 import { IOrder } from '../types/orderTypes'
-import { number, object } from 'joi'
 
 const orderSchema = new Schema<IOrder>(
   {
@@ -15,15 +14,29 @@ const orderSchema = new Schema<IOrder>(
       required: true,
     },
     products: [
-{      product:{
-        type: Schema.Types.ObjectId,
-        ref: 'Product',
-        required: true,
+      {
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
+          required: true,
+        },
+        quantity: { type: Number, require: true, trim: true },
       },
-      quantity:{type:Number,require:true,trim:true}}
     ],
-    payment:{type:Object},
-    status:{type:String,enum:['Not Processed', 'Processed' ,'Shipped' ,'Delivered' ,'Canceled'] ,default:'Not Processed'}
+
+    payment: { type: Object },
+
+    status: {
+      type: String,
+      enum: ['Not Processed', 'Processed', 'Shipped', 'Delivered', 'Canceled'],
+      default: 'Not Processed',
+    },
+    shipping: {
+      address: { type: String, require: true, trim: true },
+      city: { type: String, require: true, trim: true },
+      postalCode: { type: String, require: true, trim: true },
+      country: { type: String, require: true, trim: true },
+    },
   },
   { timestamps: true }
 )

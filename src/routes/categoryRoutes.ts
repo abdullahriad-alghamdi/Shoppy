@@ -16,17 +16,25 @@ import { categoryValidate } from '../middlewares/validation'
 
 const router = Router()
 
+/**======================
+ **    All Routes
+ *========================**/
+
 // GET : /category -> returned all category
 router.get('/', getAllCategories)
 
 // GET : /category/:slug-> returned a single category by slug
 router.get('/:slug', getCategoryBySlug)
 
+/**======================
+ **    Admin Routes
+ *========================**/
+
 // POST : /category ->  create new category
-router.post('/', isLoggedIn, isAdmin,categoryValidate, createCategory)
+router.post('/', isLoggedIn, isAdmin, categoryValidate, createCategory)
 
 // PUT : /category/:slug -> update single category by slug
-router.put('/:slug', isLoggedIn, isAdmin,categoryValidate, updateCategoryBySlug)
+router.put('/:slug', isLoggedIn, isAdmin, categoryValidate, updateCategoryBySlug)
 
 // DELETE : /category/:slug -> delete single category by slug
 router.delete('/:slug', isLoggedIn, isAdmin, deleteCategoryBySlug)
