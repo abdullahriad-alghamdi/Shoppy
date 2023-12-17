@@ -65,7 +65,7 @@ export const getProducts = async (
 
 // getting a single product by slug
 export const findProduct = async (slug: string) => {
-  const product = await Product.findOne({ slug: slug }).populate('category')
+  const product = await Product.findOne({ slug: slug }).populate('category', 'title')
   if (!product) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
@@ -85,6 +85,8 @@ export const createNewProduct = async (product: IProduct, image: string | undefi
     ...product,
     slug: slug,
     image: image,
+    quantity: quantity,
+    countInStock: quantity,
     sold: quantity - countInStock > 0 ? quantity - countInStock : sold,
   })
 
@@ -94,7 +96,7 @@ export const createNewProduct = async (product: IProduct, image: string | undefi
 
 // updating product by slug
 export const updateProduct = async (slug: string, product: productUpdateType) => {
-  const { title, sold, quantity, countInStock } = product as IProduct
+  const { title, quantity } = product
 
   const isProductExist = await Product.exists({ slug: slug })
   if (!isProductExist) {
@@ -108,18 +110,32 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
     }
   }
 
-  const updatedProduct = await Product.findOneAndUpdate(
-    { slug: slug },
-    {
-      ...product,
-      slug: title && typeof title === 'string' ? slugify(title, { lower: true }) : slug,
-      title,
-      sold: quantity - countInStock > 0 ? quantity - countInStock : sold,
-    },
-    { new: true }
-  )
+  const oldProductValues = await Product.findOne({ slug: slug })
 
-  return updatedProduct
+  if (oldProductValues) {
+    const newQuantity = quantity ? quantity + oldProductValues.quantity : oldProductValues.quantity
+    // Calculate new count in stock and sold units based on provided quantities
+
+    const newCountInStock = newQuantity
+      ? newQuantity - oldProductValues.sold
+      : oldProductValues.countInStock
+
+    const newSold =
+      newQuantity && newCountInStock ? newQuantity - newCountInStock : oldProductValues.sold
+
+    const updateProduct = await Product.findOneAndUpdate(
+      { slug: slug },
+      {
+        ...product,
+        quantity: newQuantity,
+        slug: title && typeof title === 'string' && slugify(title, { lower: true }),
+        countInStock: newCountInStock,
+        sold: newSold,
+      },
+      { new: true }
+    )
+    return updateProduct
+  }
 }
 
 // replacing the old image with the new image in the file system

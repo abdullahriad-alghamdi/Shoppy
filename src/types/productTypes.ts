@@ -21,6 +21,9 @@ export interface IProduct extends Document {
   __v: number
 }
 
-export type productInputType = Omit<IProduct, 'slug' | 'createdAt' | 'updatedAt' | '__v' | 'sold'>
+export type productInputType = Omit<
+  IProduct,
+  'slug' | 'createdAt' | 'updatedAt' | '__v' | 'countInStock' | 'sold' | '_id'
+>
 
 export type productUpdateType = Partial<productInputType>

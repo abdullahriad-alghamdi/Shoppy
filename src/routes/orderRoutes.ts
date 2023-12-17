@@ -5,13 +5,16 @@ import { Router } from 'express'
 import {
   updatedOrderById,
   deleteOrderById,
-  getOrdersAdmin,
-  getOrderForUser,
+  getAllOrders,
+  getMyOrders,
   handlePayment,
+  getUserOrders,
+  getSingleOrder,
+  getMySingleOrder,
 } from '../controllers/orderControllers'
 // Middlewares
 import { isLoggedIn, isAdmin } from '../middlewares/auth'
-import { orderValidate } from '../middlewares/validation'
+import { orderUpdateValidate, orderValidate } from '../middlewares/validation'
 
 const router = Router()
 
@@ -21,18 +24,29 @@ const router = Router()
 
 // POST : /orders/process-payment -> returned new order
 router.post('/process-payment', isLoggedIn, orderValidate, handlePayment)
-// Get : /orders/:id -> returned order for user
-router.get('/:id([0-9a-fA-F]{24})', isLoggedIn, getOrderForUser)
+// Get : /my-orders -> returned a specific user orders
+router.get('/my-orders', isLoggedIn, getMyOrders)
+// GET : /my-order/:id -> returned a specific order
+router.get('/my-order/:id', isLoggedIn, getMySingleOrder)
 
 /**======================
  **    Admin Routes
  *========================**/
 
 // Get : /orders/all-orders -> returned order for user
-router.get('/all-orders', isLoggedIn, isAdmin, getOrdersAdmin)
+router.get('/all-orders', isLoggedIn, isAdmin, getAllOrders)
+// GET : /user-orders/:id -> returned a specific user orders
+router.get('/user-orders/:id', isLoggedIn, isAdmin, getUserOrders)
+// GET : /user-order/:id -> returned a specific order
+router.get('/user-order/:id', isLoggedIn, isAdmin, getSingleOrder)
 // PUT : /orders/:id -> returned updated order
-router.put('/:id', isLoggedIn, isAdmin, orderValidate, updatedOrderById)
+router.put('/:id', isLoggedIn, isAdmin, orderUpdateValidate, updatedOrderById)
 // DELETE : /orders/:slug -> returned updated order
 router.delete('/:id', isLoggedIn, isAdmin, deleteOrderById)
+
+/**====================.==
+ **   All Routes
+ *========================**/
+// GET :/orders/:id -> Get a single order
 
 export default router

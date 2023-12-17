@@ -25,6 +25,10 @@ export interface IOrder extends Document {
   buyer: IUser['_id']
   products: IOrderProduct[]
   payment: IPayment
-  status: 'Not Processed' | 'Processed' | 'Shipped' | 'Delivered' | 'Canceled'
+  status: 'Pending' | 'Processed' | 'Shipped' | 'Delivered' | 'Canceled'
+  totalPrice: number
   shipping: IShipping
 }
+
+export type orderInputType = Omit<IOrder, 'buyer'>
+export type orderUpdateType = Partial<orderInputType>

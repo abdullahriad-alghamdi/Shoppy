@@ -15,7 +15,7 @@ import {
 // Middlewares
 import { isLoggedIn, isAdmin } from '../middlewares/auth'
 import { uploadProductImg } from '../middlewares/uploadFiles'
-import { productValidate } from '../middlewares/validation'
+import { productValidate, productUpdateValidate } from '../middlewares/validation'
 
 const router: Router = Router()
 
@@ -36,7 +36,14 @@ router.get('/:slug', getProductBySlug)
 router.post('/', isLoggedIn, isAdmin, uploadProductImg, productValidate, createProduct)
 
 // Put : /products/:slug -> update product by slug
-router.put('/:slug', isLoggedIn, isAdmin, uploadProductImg, productValidate, updateProductBySlug)
+router.put(
+  '/:slug',
+  isLoggedIn,
+  isAdmin,
+  uploadProductImg,
+  productUpdateValidate,
+  updateProductBySlug
+)
 
 // Delete : /products/:slug -> delete product by slug
 router.delete('/:slug', isLoggedIn, isAdmin, deleteProductBySlug)

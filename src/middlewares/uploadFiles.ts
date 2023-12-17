@@ -3,10 +3,7 @@ import path from 'path'
 
 /*======= External Dependencies and Modules =======*/
 import multer, { FileFilterCallback } from 'multer'
-import { Request, Response, NextFunction } from 'express'
-
-/*======= Internal Modules or Files =======*/
-import { createHTTPError } from '../utils/createError'
+import { Request } from 'express'
 
 // this is a storage for product image
 const productStorage = multer.diskStorage({

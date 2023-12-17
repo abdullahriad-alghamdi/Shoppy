@@ -11,7 +11,6 @@ const orderSchema = new Schema<IOrder>(
     buyer: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
     },
     products: [
       {
@@ -20,7 +19,11 @@ const orderSchema = new Schema<IOrder>(
           ref: 'Product',
           required: true,
         },
-        quantity: { type: Number, require: true, trim: true },
+        quantity: {
+          type: Number,
+          default: 1,
+          trim: true,
+        },
       },
     ],
 
@@ -28,8 +31,8 @@ const orderSchema = new Schema<IOrder>(
 
     status: {
       type: String,
-      enum: ['Not Processed', 'Processed', 'Shipped', 'Delivered', 'Canceled'],
-      default: 'Not Processed',
+      enum: ['Pending', 'Processed', 'Shipped', 'Delivered', 'Canceled'],
+      default: 'Pending',
     },
     shipping: {
       address: { type: String, require: true, trim: true },
