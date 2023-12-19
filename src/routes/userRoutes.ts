@@ -13,8 +13,6 @@ import {
   getAllUsers,
   getUserBySlug,
   updateUserBySlug,
-  // banUser,
-  // unbannedUser,
   getMe,
   updateMe,
   updateUserRole,
