@@ -3,11 +3,9 @@ import fs from 'fs'
 
 /*======= External Dependencies and Modules =======*/
 import { NextFunction, Request, Response } from 'express'
-import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 import { Error } from 'mongoose'
-import slugify from 'slugify'
-import multer from 'multer'
+
 // Types
 import { CustomRequest } from '../types/userTypes'
 
@@ -267,7 +265,7 @@ export const deleteUserBySlug = async (req: Request, res: Response, next: NextFu
     const { slug } = req.params
 
     await deleteUser(slug)
-    // get all users after delete
+    console.log('hi')
     res.status(200).json({
       message: 'User deleted successfully',
     })

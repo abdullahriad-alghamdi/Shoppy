@@ -150,10 +150,12 @@ export const deleteUser = async (slug: string) => {
   if (!isUserExist) {
     throw createHTTPError(404, `User with slug ${slug} does not exist`)
   }
+  // delete user image
+  const deletedUser = await User.findOne({ slug: slug })
+  fs.unlinkSync(deletedUser?.image as string)
 
-  const user = await User.findOne({ slug: slug })
-
-  fs.unlinkSync(user?.image as string)
+  // delete user
+  await User.deleteOne({ slug: slug })
 }
 
 // Update banning user by id
