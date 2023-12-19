@@ -1,6 +1,7 @@
 /*======= External Dependencies and Modules =======*/
 import express, { Application } from 'express'
 import morgan from 'morgan'
+import cors from 'cors'
 
 /*======= Internal Modules or Files =======*/
 // Configuration
@@ -21,7 +22,6 @@ import cookieParser from 'cookie-parser'
 
 const app: Application = express()
 
-
 connectDB()
 
 // Use middlewares
@@ -30,9 +30,15 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 // app.use(myLogger)
 app.use(cookieParser())
+app.use(
+  cors({
+    origin: dev.corsOrigin,
+    credentials: true,
+  })
+)
 
 // Use routes
-app.use('/public',express.static('public'))
+app.use('/public', express.static('public'))
 app.use('/products', productRoutes)
 app.use('/categories', categoryRoutes)
 app.use('/users', userRoutes)

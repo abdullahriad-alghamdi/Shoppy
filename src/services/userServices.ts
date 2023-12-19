@@ -19,7 +19,7 @@ import { createJSONWebToken, verifyJSONWebToken } from '../helper/jwtHelper'
 // paginating users with a limit of 3 users per page
 export const getUsers = async (
   page: number = 1,
-  limit: number = 3,
+  limit: number = 3000, //TODO: change this to 3
   search: string = '',
   sort: string = 'desc'
 ) => {
@@ -66,9 +66,7 @@ export const getUsers = async (
 
 // getting a single user by slug
 export const findUser = async (slug: string) => {
-  const user = await User.findOne({ slug: slug, isAdmin: false })
-    .populate('orders')
-    .select('-password')
+  const user = await User.findOne({ slug: slug }).populate('orders').select('-password')
   if (!user) {
     throw createHTTPError(404, `user with slug ${slug} does not exist`)
   }
@@ -153,24 +151,22 @@ export const deleteUser = async (slug: string) => {
     throw createHTTPError(404, `User with slug ${slug} does not exist`)
   }
 
-  await User.deleteOne({ slug: slug })
+  const user = await User.findOne({ slug: slug })
+
+  fs.unlinkSync(user?.image as string)
 }
 
 // Update banning user by id
-export const updateBanStatusById = async (id: string, isBanned: boolean) => {
-  try {
-    // check if user with id is valid
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error('Invalid ObjectId')
-    }
-    const user = await User.findByIdAndUpdate(id, { isBanned }, { new: true })
-
-    if (!user) {
-      throw createHTTPError(404, `user not found with ${id}`)
-    }
-  } catch (error) {
-    throw error
+export const updateBanStatusById = async (id: string) => {
+  const user = await User.findById(id)
+  if (!user) {
+    throw new Error('User not found')
   }
+
+  const isBanned = !user.isBanned
+  await User.findByIdAndUpdate(id, { isBanned }, { new: true })
+
+  return isBanned
 }
 
 // update User Profile

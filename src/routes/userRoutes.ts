@@ -13,10 +13,12 @@ import {
   getAllUsers,
   getUserBySlug,
   updateUserBySlug,
-  banUser,
-  unbannedUser,
+  // banUser,
+  // unbannedUser,
   getMe,
   updateMe,
+  updateUserRole,
+  updateUserBannedStatus,
 } from '../controllers/userControllers'
 
 // Middlewares
@@ -26,12 +28,63 @@ import { adminValidate, userValidate } from '../middlewares/validation'
 
 const router = Router()
 
+// /**======================
+//  **    Users Routes
+//  *=======================**/
+
+// // POST : /users/process-register -> Process Registration For New User
+// router.post('/register', isLoggedOut, uploadUserImg, userValidate, registerUser)
+
+// // POST : /users/activate
+// router.post('/activate', activateUser)
+
+// /**======================
+//  **    Admin Routes
+//  *=======================**/
+
+// // GET : /users -> Get All Users
+// router.get('/', isLoggedIn, isAdmin, getAllUsers)
+
+// // GET : /users/:slug -> Get User By Slug
+// router.get('/:slug', isLoggedIn, isAdmin, getUserBySlug)
+
+// // PUT : /users/:slug -> Update User By Slug
+// router.put('/:slug', isLoggedIn, isAdmin, uploadUserImg, updateUserBySlug)
+
+// // POST : /users -> Create New User
+// router.post('/', uploadUserImg, adminValidate, createUser)
+
+// // DELETE : /users/:slug -> Delete User By Slug
+// router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
+
+// // PUT : /users/banStatus/:id -> update User Banned Status
+// router.put('/banStatus/:id',isLoggedIn, isAdmin, updateUserBannedStatus)
+
+// // Put : /users/role/:id -> update user role
+// router.put('/role/:id', isLoggedIn, isAdmin, updateUserRole)
+
+// /**======================
+//  **    All Routes
+//  *=======================**/
+
+// // GET : /users/me -> Get User By id
+// router.get('/me', isLoggedIn, getMe)
+
+// // PUT : /users/updateMe -> Update User profile By Slug
+// router.put('/updateMe', isLoggedIn, uploadUserImg, updateMe)
+
+// // POST : /users/forgot-password -> Process Forgot Password For User
+// router.post('/forgot-password', isLoggedOut, forgotPassword)
+
+// // POST : /users/reset-password -> Process Reset Password For User
+// router.post('/reset-password', isLoggedOut, resetPassword)
+
 /**======================
  **    Users Routes
  *=======================**/
 
 // POST : /users/process-register -> Process Registration For New User
-router.post('/register', isLoggedOut, uploadUserImg, userValidate, registerUser)
+router.post('/register', uploadUserImg, userValidate, registerUser)
 
 // POST : /users/activate
 router.post('/activate', activateUser)
@@ -41,10 +94,10 @@ router.post('/activate', activateUser)
  *=======================**/
 
 // GET : /users -> Get All Users
-router.get('/', isLoggedIn, isAdmin, getAllUsers)
+router.get('/', getAllUsers)
 
 // GET : /users/:slug -> Get User By Slug
-router.get('/:slug', isLoggedIn, isAdmin, getUserBySlug)
+router.get('/:slug', getUserBySlug)
 
 // PUT : /users/:slug -> Update User By Slug
 router.put('/:slug', isLoggedIn, isAdmin, uploadUserImg, updateUserBySlug)
@@ -53,13 +106,13 @@ router.put('/:slug', isLoggedIn, isAdmin, uploadUserImg, updateUserBySlug)
 router.post('/', uploadUserImg, adminValidate, createUser)
 
 // DELETE : /users/:slug -> Delete User By Slug
-router.delete('/:slug', isLoggedIn, isAdmin, deleteUserBySlug)
+router.delete('/:slug', deleteUserBySlug)
 
-// POST : /users/ban/:id -> returned Updated user
-router.put('/ban/:id', isLoggedIn, isAdmin, userValidate, banUser)
+// PUT : /users/banStatus/:id -> update User Banned Status
+router.put('/banStatus/:id', updateUserBannedStatus)
 
-// POST : /users/ban/:id -> returned Updated user
-router.put('/unban/:id', isLoggedIn, isAdmin, userValidate, unbannedUser)
+// Put : /users/role/:id -> update user role
+router.put('/role/:id', updateUserRole)
 
 /**======================
  **    All Routes
@@ -72,9 +125,9 @@ router.get('/me', isLoggedIn, getMe)
 router.put('/updateMe', isLoggedIn, uploadUserImg, updateMe)
 
 // POST : /users/forgot-password -> Process Forgot Password For User
-router.post('/forgot-password', isLoggedOut, forgotPassword)
+router.post('/forgot-password', forgotPassword)
 
 // POST : /users/reset-password -> Process Reset Password For User
-router.post('/reset-password', isLoggedOut, resetPassword)
+router.post('/reset-password', resetPassword)
 
 export default router

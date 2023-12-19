@@ -182,7 +182,7 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
     const { users, totalPages, currentPage } = await getUsers(page, limit, search, sort)
 
     res.status(200).json({
-      message: 'Get all users successfully',
+      message: 'fetched all users successfully',
       payload: users,
       totalPages,
       currentPage,
@@ -199,7 +199,7 @@ export const getUserBySlug = async (req: Request, res: Response, next: NextFunct
 
     const user = await findUser(slug)
     res.status(200).json({
-      message: 'Get a single user by slug successfully',
+      message: 'Fetched a single user by slug successfully',
       payload: user,
     })
   } catch (error) {
@@ -266,40 +266,56 @@ export const deleteUserBySlug = async (req: Request, res: Response, next: NextFu
   try {
     const { slug } = req.params
 
-    const user = await deleteUser(slug)
+    await deleteUser(slug)
+    // get all users after delete
     res.status(200).json({
-      message: 'Delete user by slug successfully',
-      payload: user,
+      message: 'User deleted successfully',
     })
   } catch (error) {
     return next(error)
   }
 }
 
-// Handling  ban user by id
-export const banUser = async (req: Request, res: Response, next: NextFunction) => {
+// Handling  update user banned status
+export const updateUserBannedStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let { id } = req.params
-
-    const userUpdated = await updateBanStatusById(id, true)
-    res.json({
-      message: 'User is banned',
-      payload: userUpdated,
-    })
+    const { id } = req.params
+    const isBanned = await updateBanStatusById(id)
+    if (isBanned) {
+      res.json({
+        message: 'User is banned successfully',
+      })
+    } else {
+      res.json({
+        message: 'User is unbanned successfully',
+      })
+    }
   } catch (error) {
     return next(error)
   }
 }
 
-// Handling  unban user by id
-export const unbannedUser = async (req: Request, res: Response, next: NextFunction) => {
+// Handling update user role
+export const updateUserRole = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let { id } = req.params
-    const userUpdated = await updateBanStatusById(id, false)
-    res.json({
-      message: 'User is unbanned',
-      payload: userUpdated,
-    })
+    const { id } = req.params
+
+    const user = await User.findById(id)
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const isAdmin = !user.isAdmin
+    await User.findByIdAndUpdate(id, { isAdmin }, { new: true })
+    if (isAdmin) {
+      res.json({
+        message: 'User role updated to an admin successfully',
+      })
+    } else {
+      res.json({
+        message: 'User role updated to a user successfully',
+      })
+    }
   } catch (error) {
     return next(error)
   }
