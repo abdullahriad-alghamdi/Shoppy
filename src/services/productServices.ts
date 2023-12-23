@@ -52,6 +52,9 @@ export const getProducts = async (
 
   if (categoryId) {
     filter.category = { $eq: categoryId }
+    page = 1
+    skip = Math.max(0, (page - 1) * limit)
+    limit = count
   }
 
   const products = await Product.find(filter, options)
