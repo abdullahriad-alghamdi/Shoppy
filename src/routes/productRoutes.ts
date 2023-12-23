@@ -19,6 +19,35 @@ import { productValidate, productUpdateValidate } from '../middlewares/validatio
 
 const router: Router = Router()
 
+// /**======================
+//  **     All Routes
+//  *========================**/
+// // Get : /products -> get all products
+// router.get('/', getAllProducts)
+
+// // Get : /products/:slug -> get product by slug
+// router.get('/:slug', getProductBySlug)
+
+// /**======================
+//  **    Admin Routes
+//  *========================**/
+
+// // Post : /products -> create new product
+// router.post('/', isLoggedIn, isAdmin, uploadProductImg, productValidate, createProduct)
+
+// // Put : /products/:slug -> update product by slug
+// router.put(
+//   '/:slug',
+//   isLoggedIn,
+//   isAdmin,
+//   uploadProductImg,
+//   productUpdateValidate,
+//   updateProductBySlug
+// )
+
+// // Delete : /products/:slug -> delete product by slug
+// router.delete('/:slug', isLoggedIn, isAdmin, deleteProductBySlug)
+
 /**======================
  **     All Routes
  *========================**/
@@ -33,19 +62,12 @@ router.get('/:slug', getProductBySlug)
  *========================**/
 
 // Post : /products -> create new product
-router.post('/', isLoggedIn, isAdmin, uploadProductImg, productValidate, createProduct)
+router.post('/', uploadProductImg, productValidate, createProduct)
 
 // Put : /products/:slug -> update product by slug
-router.put(
-  '/:slug',
-  isLoggedIn,
-  isAdmin,
-  uploadProductImg,
-  productUpdateValidate,
-  updateProductBySlug
-)
+router.put('/:slug', uploadProductImg, productUpdateValidate, updateProductBySlug)
 
 // Delete : /products/:slug -> delete product by slug
-router.delete('/:slug', isLoggedIn, isAdmin, deleteProductBySlug)
+router.delete('/:slug', deleteProductBySlug)
 
 export default router

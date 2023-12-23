@@ -8,44 +8,22 @@ import { Category } from '../models/categorySchema'
 import { createHTTPError } from '../utils/createError'
 
 // getting all Category
-export const getCategories = async (
-  page: number = 1,
-  limit: number = 3,
-  search: string = '',
-  sort: string = 'desc'
-) => {
-  let skip = Math.max(0, (page - 1) * limit)
-  const count = await Category.countDocuments()
+export const getCategories = async (search: string = '', sort: string = 'desc') => {
   const sortBy = sort === 'asc' ? 1 : sort === 'desc' ? -1 : -1
-
-  const totalPages = Math.ceil(count / limit)
-
-  // if the page is greater than the total pages, set the page to the last page
-  if (page > totalPages) {
-    page = totalPages
-    skip = Math.max(0, (page - 1) * limit)
-  }
 
   let searchQuery: any = {}
   const searchRegExp: RegExp = new RegExp('.*' + search + '.*', 'i')
 
   if (search) {
-    // resting the skip to 0 if the user is searching
-    limit = count
-    page = 1
-    skip = Math.max(0, (page - 1) * limit)
     searchQuery.$or = [{ title: searchRegExp }]
   }
   const filter = {
     __v: 0,
   }
 
-  const categories = await Category.find(searchQuery, filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: sortBy })
+  const categories = await Category.find(searchQuery, filter).sort({ createdAt: sortBy })
 
-  return { categories, totalPages, currentPage: page }
+  return { categories }
 }
 
 // finding a single Category by slug
@@ -75,13 +53,23 @@ export const createNewCategory = async (title: string) => {
 export const updateCategory = async (slug: string, title: string) => {
   const isCategoryExist = await Category.exists({ slug: slug })
   if (!isCategoryExist) {
-    throw createHTTPError(404, `Category with slug ${slug} does not exist`)
+    throw createHTTPError(404, `no Category with slug ${slug} exist`)
+  }
+  title = title.toLowerCase()
+  const alreadyExist = await Category.findOne({ title: title })
+  if (alreadyExist) {
+    throw createHTTPError(409, 'Category with this title already exist')
+  }
+  const slugExist = await Category.findOne({ slug: slugify(title, { lower: true }) })
+  if (slugExist) {
+    throw createHTTPError(409, 'Category with this title already exist')
   }
   const updatedCategory = await Category.findOneAndUpdate(
     { slug: slug },
     { title: title, slug: title ? slugify(title, { lower: true }) : slug },
     { new: true }
   )
+
   return { updatedCategory }
 }
 

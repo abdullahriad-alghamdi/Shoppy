@@ -34,7 +34,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     const categoryId = (data.categoryId as string) || undefined
     const sort = data.sort as string
 
-    const { products, totalPages, currentPage } = await getProducts(
+    const { products, pagination } = await getProducts(
       page,
       limit,
       maxPrice,
@@ -48,24 +48,21 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
       res.status(200).json({
         message: 'Products you are searching for:',
         payload: products,
-        totalPages,
-        currentPage,
+        pagination,
       })
       return
     } else if (data.categoryId) {
       res.status(200).json({
         message: 'Products in this category:',
         payload: products,
-        totalPages,
-        currentPage,
+        pagination,
       })
       return
     } else {
       res.status(200).json({
         message: '  Products retrieved successfully!',
         payload: products,
-        totalPages,
-        currentPage,
+        pagination,
       })
     }
   } catch (error) {
@@ -104,6 +101,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     const file = req.file
     const img = file?.path
     const data = req.body
+
     const product = await createNewProduct(data, img)
 
     res.status(201).json({ message: 'Product added successfully', payload: product })

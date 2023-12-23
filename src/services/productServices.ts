@@ -14,7 +14,7 @@ import { productInputType, IProduct, productUpdateType } from '../types/productT
 // paginating products with a limit of 3 products per page
 export const getProducts = async (
   page: number = 1,
-  limit: number = 3,
+  limit: number = 4,
   maxPrice: number = 1000000,
   minPrice: number = 0,
   search: string = '',
@@ -60,7 +60,7 @@ export const getProducts = async (
     .populate('category', 'title')
     .sort({ price: sortBy })
 
-  return { products, totalPages, currentPage: page }
+  return { products, pagination: { totalPages, currentPage: page, totalProducts: count } }
 }
 
 // getting a single product by slug
@@ -74,7 +74,7 @@ export const findProduct = async (slug: string) => {
 
 // creating new product with image
 export const createNewProduct = async (product: IProduct, image: string | undefined) => {
-  const { title, sold, quantity, countInStock } = product
+  const { title, sold, quantity, countInStock, category } = product
 
   const isProductExist = await Product.exists({ title: title })
   if (isProductExist) {
@@ -88,6 +88,7 @@ export const createNewProduct = async (product: IProduct, image: string | undefi
     quantity: quantity,
     countInStock: quantity,
     sold: quantity - countInStock > 0 ? quantity - countInStock : sold,
+    category: category,
   })
 
   newProduct.save()
@@ -103,15 +104,14 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
   }
 
-  if (title) {
+  const oldProductValues = await Product.findOne({ slug: slug })
+
+  if (title === oldProductValues?.title) {
     const isTitleExist = await Product.exists({ title: title })
     if (isTitleExist) {
       throw createHTTPError(409, `Product with title ${title} already exists`)
     }
   }
-
-  const oldProductValues = await Product.findOne({ slug: slug })
-
   if (oldProductValues) {
     const newQuantity = quantity ? quantity + oldProductValues.quantity : oldProductValues.quantity
     // Calculate new count in stock and sold units based on provided quantities
@@ -126,11 +126,19 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
     const updateProduct = await Product.findOneAndUpdate(
       { slug: slug },
       {
-        ...product,
         quantity: newQuantity,
-        slug: title && typeof title === 'string' && slugify(title, { lower: true }),
+        slug:
+          title && typeof title === 'string' && title !== ''
+            ? slugify(title, { lower: true })
+            : oldProductValues.slug,
         countInStock: newCountInStock,
         sold: newSold,
+
+        title: title === '' ? oldProductValues.title : title,
+        category: product.category ? product.category : oldProductValues.category,
+        description: product.description,
+        price: product.price,
+        image: product.image,
       },
       { new: true }
     )

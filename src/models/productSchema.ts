@@ -54,8 +54,7 @@ const productSchema = new Schema<IProduct>(
     category: {
       type: Types.ObjectId,
       ref: 'Category',
-      required: true,
-      default: dev.app.defaultCategoryId,
+      required: [true, 'Category is required'],
     },
 
     image: {

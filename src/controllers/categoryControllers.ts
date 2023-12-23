@@ -23,26 +23,20 @@ export const getAllCategories = async (req: Request, res: Response, next: NextFu
   try {
     const data = req.query
 
-    let page = Number(data.page) || undefined
-    const limit = Number(data.limit) || undefined
     const search = data.search as string
     const sort = data.sort as string
-    const { categories, totalPages, currentPage } = await getCategories(page, limit, search, sort)
+    const { categories } = await getCategories(search, sort)
 
     if (data.search) {
       res.status(200).json({
         message: 'Categories you are searching for:',
         payload: categories,
-        totalPages,
-        currentPage,
       })
     }
 
     res.status(200).json({
       message: 'Categories retrieved successfully!',
       payload: categories,
-      totalPages,
-      currentPage,
     })
   } catch (error) {
     return next(error)
@@ -89,8 +83,7 @@ export const updateCategoryBySlug = async (req: Request, res: Response, next: Ne
     const { title } = req.body
     const { slug } = req.params
     const { updatedCategory } = await updateCategory(slug, title)
-    await updatedCategory?.save()
-
+    console.log(updatedCategory)
     res.status(200).json({ message: 'Category updated successfully!', payload: updatedCategory })
   } catch (error) {
     if (error instanceof Error.ValidationError) {
@@ -107,9 +100,9 @@ export const updateCategoryBySlug = async (req: Request, res: Response, next: Ne
 export const deleteCategoryBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params
-
-    const category = await deleteCategory(slug)
-    res.status(200).json({ message: 'delete category Successfully!', payload: category })
+    const foundCategory = await findCategory(slug)
+    await deleteCategory(slug)
+    res.status(200).json({ message: 'delete category Successfully!', payload: foundCategory })
   } catch (error) {
     return next(error)
   }

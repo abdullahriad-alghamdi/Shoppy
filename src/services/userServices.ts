@@ -19,7 +19,7 @@ import { createJSONWebToken, verifyJSONWebToken } from '../helper/jwtHelper'
 // paginating users with a limit of 3 users per page
 export const getUsers = async (
   page: number = 1,
-  limit: number = 3000, //TODO: change this to 3
+  limit: number = 555, //TODO: change this to 3
   search: string = '',
   sort: string = 'desc'
 ) => {

@@ -6,7 +6,6 @@ export const dev = {
   app: {
     port: Number(process.env.PORT) || Number(''),
     defaultImagePath: process.env.DEFAULT_IMAGE_PATH || '',
-    defaultCategoryId: '656a54ea69e619196c502073',
     jwtUserActivationKey: process.env.JWT_KEY || '',
     jwtUserAccessKey: process.env.JWT_KEY || '',
     smtpUsername: process.env.SMTP_USERNAME || '',

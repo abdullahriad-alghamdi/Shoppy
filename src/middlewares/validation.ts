@@ -13,8 +13,8 @@ export const productValidate = (req: Request, res: Response, next: NextFunction)
     description: Joi.string().min(10),
     price: Joi.number().required(),
     quantity: Joi.number().min(1).required(),
-    category: Joi.string().min(3).max(50).required(),
-    image: Joi.string(),
+    category: Joi.string().min(3).max(50),
+    image: Joi.string().optional().allow(''),
   })
 
   const { error, value } = schema.validate(req.body, { abortEarly: false })
@@ -26,7 +26,7 @@ export const productValidate = (req: Request, res: Response, next: NextFunction)
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value
@@ -37,11 +37,11 @@ export const productValidate = (req: Request, res: Response, next: NextFunction)
 // update Product Validation
 export const productUpdateValidate = (req: Request, res: Response, next: NextFunction) => {
   const schema = Joi.object({
-    title: Joi.string().min(3).max(100),
-    description: Joi.string().min(10),
-    price: Joi.number(),
-    quantity: Joi.number().min(1),
-    category: Joi.string().min(3).max(50),
+    title: Joi.string().min(3).max(100).allow(''),
+    description: Joi.string().min(10).allow(''),
+    price: Joi.number().allow(''),
+    quantity: Joi.number().min(1).allow(''),
+    category: Joi.string().min(3).max(50).allow(''),
     image: Joi.string(),
   })
 
@@ -54,7 +54,7 @@ export const productUpdateValidate = (req: Request, res: Response, next: NextFun
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value
@@ -83,7 +83,7 @@ export const userValidate = (req: Request, res: Response, next: NextFunction) =>
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value
@@ -114,7 +114,7 @@ export const adminValidate = (req: Request, res: Response, next: NextFunction) =
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value
@@ -137,7 +137,31 @@ export const categoryValidate = (req: Request, res: Response, next: NextFunction
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
+  } else {
+    // If validation passes, attach the validated data to req.body
+    req.body = value
+    return next()
+  }
+}
+
+// Categoryn Update Validation
+export const categoryUpdateValidate = (req: Request, res: Response, next: NextFunction) => {
+  const schema = Joi.object({
+    title: Joi.string().min(3).max(100),
+    slug: Joi.string().min(3).max(100).optional(),
+  })
+
+  const { error, value } = schema.validate(req.body, { abortEarly: false })
+  if (error) {
+    console.log(error)
+    const errorDetails = error.details.map((detail) => {
+      return {
+        message: detail.message,
+        path: detail.path,
+      }
+    })
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value
@@ -177,7 +201,7 @@ export const orderValidate = (req: Request, res: Response, next: NextFunction) =
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value
@@ -220,7 +244,7 @@ export const orderUpdateValidate = (req: Request, res: Response, next: NextFunct
         path: detail.path,
       }
     })
-    throw createHTTPError(400, errorDetails)
+    throw createHTTPError(400, errorDetails[0].message)
   } else {
     // If validation passes, attach the validated data to req.body
     req.body = value

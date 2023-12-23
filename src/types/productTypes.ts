@@ -15,7 +15,7 @@ export interface IProduct extends Document {
   countInStock: number
   sold: number
   image: string
-  category: Types.ObjectId | ICategory
+  category: ICategory | Types.ObjectId
   createdAt?: Date
   updatedAt?: Date
   __v: number
