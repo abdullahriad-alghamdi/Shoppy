@@ -32,8 +32,6 @@ export const getProducts = async (
     skip = Math.max(0, (page - 1) * limit)
   }
   const options = {
-    updatedAt: 0,
-    createdAt: 0,
     __v: 0,
   }
 
@@ -56,6 +54,7 @@ export const getProducts = async (
     skip = Math.max(0, (page - 1) * limit)
     limit = count
   }
+  // if sort active, sort by price but make sure it work with pagination so the lowest price will be on the first page
 
   const products = await Product.find(filter, options)
     .skip(skip)
