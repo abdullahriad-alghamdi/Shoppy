@@ -52,7 +52,7 @@ const userSchema = new Schema<IUser>(
     },
     image: {
       type: String,
-      default: dev.app.defaultImagePath,
+      default: dev.app.defaultUserImagePath,
     },
 
     address: {

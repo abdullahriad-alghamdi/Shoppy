@@ -86,7 +86,6 @@ router.post('/register', uploadUserImg, userValidate, registerUser)
 
 // POST : /users/activate
 router.post('/activate', activateUser)
-
 /**======================
  **    Admin Routes
  *=======================**/

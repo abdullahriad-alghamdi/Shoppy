@@ -17,7 +17,7 @@ export const getProducts = async (
   limit: number = 4,
   maxPrice: number = 1000000,
   minPrice: number = 0,
-  search: string = '',
+  searchBy: string = '',
   categoryId?: string,
   sort: string = 'desc'
 ) => {
@@ -38,9 +38,9 @@ export const getProducts = async (
   let filter: any = {
     price: { $lte: maxPrice, $gte: minPrice },
   }
-  const searchRegExp: RegExp = new RegExp('.*' + search + '.*', 'i')
+  const searchRegExp: RegExp = new RegExp('.*' + searchBy + '.*', 'i')
 
-  if (search) {
+  if (searchBy) {
     // resting the skip to 0 if the user is searching
     limit = count
     page = 1
@@ -62,7 +62,7 @@ export const getProducts = async (
     .populate('category', 'title')
     .sort({ price: sortBy })
 
-  return { products, pagination: { totalPages, currentPage: page, totalProducts: count } }
+  return { products, pagination: { totalPages, currentPage: page, totalProducts: count } ,searchBy}
 }
 
 // getting a single product by slug

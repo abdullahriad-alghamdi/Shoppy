@@ -252,15 +252,17 @@ export const registeringUser = async (user: IUser, imagePath: string | undefined
       email: email,
       subject: 'Account activation link',
       html: `
-        <h1>Hello ${name}</h1>
-        <p>Please activate your account by :
-        <a href="http://localhost:8080/users/activate/${token}">
-        Click here to activate your account</a></p>
-        <hr />
-        <p>This activation link expires in 10 minutes</p>`,
+      <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; background-color: #f0f9f0;">
+      <div style="max-width: 600px; margin: 50px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <img src="https://res.cloudinary.com/dasw4jtcc/image/upload/v1703519214/time.png" alt="Activation Image" style="margin-bottom: 5px; width: 300px; height: 200px; object-fit: contain">
+        <h1 style="color: #007f7f; font-size: 28px; font-weight: bold; margin-bottom: 20px;">Activate your email</h1>
+        <p style="font-size: 18px; margin-bottom: 30px;">Please click on the link below to activate your email</p>
+        <a href="http://localhost:3000/activate/${token}" style="display: inline-block; padding: 12px 24px; background-color: #007f7f; color: #ffffff; text-decoration: none; font-size: 18px; font-weight: bold; border-radius: 5px; transition: background-color 0.3s ease;" class="activation-link">Activate</a>
+      </div>
+    </body>`,
     }
 
-    return { emailData, token }
+    return { emailData }
   } catch (error) {
     throw error
   }
@@ -314,12 +316,16 @@ export const resetMyPasswordProcess = async (email: string) => {
       email: email,
       subject: 'Password reset link',
       html: `
-        <h1>Hello</h1>
-        <p>Please reset your password by :
-        <a href="http://localhost:8080/users/reset-password/${token}">
-        Click here to reset your password</a></p>
-        <hr />
-        <p>This reset password link expires in 10 minutes</p>`,
+      <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; background-color: #f0f9f0;">
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <div style="max-width: 400px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+          <h1 style="color: #007f7f; font-size: 28px; font-weight: bold; margin-bottom: 20px;">Reset Your Password</h1>
+          <p style="font-size: 16px; margin-bottom: 30px;">Please click the button below to reset your password.</p>
+          <a href="http://localhost:3000/resetPassword/${token}" style="display: inline-block; padding: 12px 24px; background-color: #007f7f; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; transition: background-color 0.3s ease;">Reset Password</a>
+          <p style="font-size: 14px; color: #888; margin-top: 20px;">If you did not request this, please ignore this email.</p>
+        </div>
+      </div>
+    </body>`,
     }
 
     return { emailData, token }
@@ -346,9 +352,7 @@ export const resetThePassword = async (token: string, password: string) => {
       if (!isUserExists) {
         throw createHTTPError(404, 'User does not exist')
       }
-
       const hashedPassword = password && (await bcrypt.hash(password, 10))
-
       await User.findOneAndUpdate({ email: decoded.email }, { password: hashedPassword })
     } else {
       throw createHTTPError(404, 'Invalid token')

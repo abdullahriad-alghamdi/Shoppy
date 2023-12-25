@@ -83,7 +83,6 @@ export const updateCategoryBySlug = async (req: Request, res: Response, next: Ne
     const { title } = req.body
     const { slug } = req.params
     const { updatedCategory } = await updateCategory(slug, title)
-    console.log(updatedCategory)
     res.status(200).json({ message: 'Category updated successfully!', payload: updatedCategory })
   } catch (error) {
     if (error instanceof Error.ValidationError) {

@@ -48,14 +48,12 @@ import {
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const imagePath = req.file?.path
-    const { emailData, token } = await registeringUser(req.body, imagePath as string)
-
+    const { emailData } = await registeringUser(req.body, imagePath as string)
     // send email
     await handelSendEmail(emailData)
 
     res.status(200).json({
       message: 'Check your email to verify your account',
-      token: token,
     })
   } catch (error) {
     if (error instanceof Error.ValidationError) {
@@ -115,8 +113,8 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token } = req.body
-    const { password } = req.body
-    await resetThePassword(token, password)
+    const { newPassword } = req.body
+    await resetThePassword(token, newPassword)
     res.status(201).json({
       message: 'Your password has been reset successfully',
     })
@@ -265,7 +263,6 @@ export const deleteUserBySlug = async (req: Request, res: Response, next: NextFu
     const { slug } = req.params
 
     await deleteUser(slug)
-    console.log('hi')
     res.status(200).json({
       message: 'User deleted successfully',
     })
