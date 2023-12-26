@@ -69,7 +69,6 @@ export const updateCategory = async (slug: string, title: string) => {
     { title: title, slug: title ? slugify(title, { lower: true }) : slug },
     { new: true }
   )
-
   return { updatedCategory }
 }
 

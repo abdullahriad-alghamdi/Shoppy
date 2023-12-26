@@ -158,7 +158,7 @@ export const deleteUser = async (slug: string) => {
   await User.deleteOne({ slug: slug })
 }
 
-// Update banning user by id
+// update banning user by id
 export const updateBanStatusById = async (id: string) => {
   const user = await User.findById(id)
   if (!user) {
