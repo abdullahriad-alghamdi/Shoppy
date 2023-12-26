@@ -317,7 +317,7 @@ export const resetMyPasswordProcess = async (email: string) => {
       subject: 'Password reset link',
       html: `
       <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; background-color: #f0f9f0;">
-      <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+      <div style="max-width: 600px; margin: 50px auto; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
         <div style="max-width: 400px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
           <h1 style="color: #007f7f; font-size: 28px; font-weight: bold; margin-bottom: 20px;">Reset Your Password</h1>
           <p style="font-size: 16px; margin-bottom: 30px;">Please click the button below to reset your password.</p>
