@@ -15,6 +15,6 @@ const router = Router()
 // POST : /auth/login -> Login User
 router.post('/login', userId, isLoggedOut, loginUser)
 // POST : /auth/logout -> Logout User
-router.post('/logout', isLoggedIn, logoutUser)
+router.post('/logout', logoutUser)
 
 export default router

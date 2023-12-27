@@ -7,9 +7,9 @@ import { Request } from 'express'
 
 // this is a storage for product image
 const productStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images/products')
-  },
+  // destination: function (req, file, cb) {
+  //   cb(null, 'public/images/products')
+  // },
   filename: function (req, file, cb) {
     cb(null, req.body.title + '-' + Date.now() + path.extname(file.originalname))
   },
@@ -17,9 +17,9 @@ const productStorage = multer.diskStorage({
 
 // this is a storage for user profile image
 const userStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images/users')
-  },
+  // destination: function (req, file, cb) {
+  //   cb(null, 'public/images/users')
+  // },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
   },

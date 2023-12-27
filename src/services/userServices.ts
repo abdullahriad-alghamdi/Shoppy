@@ -15,6 +15,11 @@ import { IUser, userUpdateProfileType, userUpdateType } from '../types/userTypes
 import { dev } from '../config'
 // Helpers
 import { createJSONWebToken, verifyJSONWebToken } from '../helper/jwtHelper'
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+  valueWithoutExtension,
+} from '../helper/cloudinary'
 
 // paginating users with a limit of 3 users per page
 export const getUsers = async (
@@ -99,7 +104,12 @@ export const createNewUser = async (user: IUser, imagePath: string | undefined) 
     image: imagePath,
   })
 
-  newUser.save()
+  if (newUser && newUser.image) {
+    const cloudinaryUrl = await uploadToCloudinary(newUser.image, `sda-ecommerce/users`)
+    // adding the cloudinary url to
+    newUser.image = cloudinaryUrl
+    await newUser.save()
+  }
 
   return newUser
 }
@@ -141,6 +151,21 @@ export const updateUser = async (
     { new: true }
   )
 
+  // to upload an image to Cloudinary and get the Cloudinary URL
+  if (updatedUser && updatedUser.image) {
+    const cloudinaryUrl = await uploadToCloudinary(updatedUser.image, `sda-ecommerce/users`)
+    // adding the cloudinary url to
+    updatedUser.image = cloudinaryUrl
+    await updatedUser.save()
+  }
+
+  const oldUserValues = await User.findOne({ slug: slug })
+  // if the user has image then delete image from cloudinary
+  if (oldUserValues && oldUserValues.image) {
+    const publicId = await valueWithoutExtension(oldUserValues.image)
+    await deleteFromCloudinary(`sda-ecommerce/users/${publicId}`)
+  }
+
   return updatedUser
 }
 
@@ -151,8 +176,11 @@ export const deleteUser = async (slug: string) => {
     throw createHTTPError(404, `User with slug ${slug} does not exist`)
   }
   // delete user image
-  const deletedUser = await User.findOne({ slug: slug })
-  fs.unlinkSync(deletedUser?.image as string)
+  const user = await User.findOne({ slug: slug })
+  if (user && user.image) {
+    const publicId = await valueWithoutExtension(user.image)
+    await deleteFromCloudinary(`sda-ecommerce/users/${publicId}`)
+  }
 
   // delete user
   await User.deleteOne({ slug: slug })
@@ -171,51 +199,51 @@ export const updateBanStatusById = async (id: string) => {
   return isBanned
 }
 
-// update User Profile
-export const updateUserProfile = async (
-  id: string | undefined,
-  user: userUpdateProfileType,
-  imagePath: string | undefined
-) => {
-  try {
-    // check if user exist
+// // update User Profile
+// export const updateUserProfile = async (
+//   id: string | undefined,
+//   user: userUpdateProfileType,
+//   imagePath: string | undefined
+// ) => {
+//   try {
+//     // check if user exist
 
-    const isUserExist = await User.exists({ _id: id })
+//     const isUserExist = await User.exists({ _id: id })
 
-    if (!isUserExist) {
-      throw createHTTPError(404, `User with id ${id} does not exist`)
-    }
+//     if (!isUserExist) {
+//       throw createHTTPError(404, `User with id ${id} does not exist`)
+//     }
 
-    const { username, email, password } = user
+//     const { username, email, password } = user
 
-    const isEmailExist = await User.exists({ email: email })
+//     const isEmailExist = await User.exists({ email: email })
 
-    if (isEmailExist) {
-      throw createHTTPError(409, `User with email ${email} already exists`)
-    }
+//     if (isEmailExist) {
+//       throw createHTTPError(409, `User with email ${email} already exists`)
+//     }
 
-    const hashedPassword = password && (await bcrypt.hash(password, 10))
+//     const hashedPassword = password && (await bcrypt.hash(password, 10))
 
-    let slug =
-      username && typeof username === 'string' ? slugify(username, { lower: true }) : username
+//     let slug =
+//       username && typeof username === 'string' ? slugify(username, { lower: true }) : username
 
-    // update user
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      {
-        ...user,
-        password: hashedPassword,
-        slug,
-        image: imagePath,
-      },
-      { new: true }
-    )
+//     // update user
+//     const updatedUser = await User.findByIdAndUpdate(
+//       id,
+//       {
+//         ...user,
+//         password: hashedPassword,
+//         slug,
+//         image: imagePath,
+//       },
+//       { new: true }
+//     )
 
-    return updatedUser
-  } catch (error) {
-    throw error
-  }
-}
+//     return updatedUser
+//   } catch (error) {
+//     throw error
+//   }
+// }
 
 // register user
 export const registeringUser = async (user: IUser, imagePath: string | undefined) => {
@@ -237,12 +265,19 @@ export const registeringUser = async (user: IUser, imagePath: string | undefined
       password: hashedPassword,
       address: address,
       phone: phone,
-      image: imagePath,
+      image: imagePath
+        ? imagePath
+        : 'https://res.cloudinary.com/dasw4jtcc/image/upload/v1703635374/sda-ecommerce/users/tma6srugpghvqhjesbyt.png',
       slug:
         username && typeof username === 'string'
           ? slugify(username, { lower: true })
           : slugify(name, { lower: true }),
     }
+    // to upload an image to Cloudinary and get the Cloudinary URL
+    const cloudinaryUrl = await uploadToCloudinary(tokenPayload.image!, 'sda-ecommerce/products')
+
+    // adding the cloudinary url to
+    tokenPayload.image = cloudinaryUrl
 
     // create token
     const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
@@ -358,6 +393,39 @@ export const resetThePassword = async (token: string, password: string) => {
       throw createHTTPError(404, 'Invalid token')
     }
     return decoded
+  } catch (error) {
+    throw error
+  }
+}
+
+// update user info
+export const updateUserProfile = async (
+  id: string,
+  data: { email: string; name: string; password: string }
+) => {
+  try {
+    const { email, name, password } = data
+
+    const isUserExists = await User.exists({ _id: id })
+
+    if (!isUserExists) {
+      throw createHTTPError(404, 'User does not exist')
+    }
+
+    const hashedPassword = password && (await bcrypt.hash(password, 10))
+    const oldUserValues = await User.findOne({ _id: id })
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        email: email ? email : oldUserValues?.email,
+        name: name ? name : oldUserValues?.name,
+        password: hashedPassword ? hashedPassword : oldUserValues?.password,
+      },
+      { new: true }
+    )
+
+    return updatedUser
   } catch (error) {
     throw error
   }

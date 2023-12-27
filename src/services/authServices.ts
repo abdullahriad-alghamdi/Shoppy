@@ -13,8 +13,8 @@ export const login = async (email: string, password: string) => {
   if (!usersExist) {
     throw createHTTPError(404, 'User does not exist')
   }
-
-  const passwordMatch = await bcrypt.compare(password, usersExist?.password)
+  console.log('pass: ', password, 'usersExist.password: ', usersExist.password)
+  const passwordMatch = await bcrypt.compare(password, usersExist.password)
 
   if (!passwordMatch) {
     throw createHTTPError(404, 'Password does not match')

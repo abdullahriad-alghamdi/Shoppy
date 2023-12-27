@@ -45,7 +45,7 @@ export const createNewCategory = async (title: string) => {
     title: title,
     slug: slugify(title, { lower: true }),
   })
-  newCategory.save()
+  await newCategory.save()
   return newCategory
 }
 

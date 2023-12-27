@@ -11,7 +11,6 @@ import {
   findProduct,
   createNewProduct,
   updateProduct,
-  replaceImage,
   deleteProduct,
 } from '../services/productServices'
 // Utils
@@ -34,7 +33,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     const categoryId = (data.categoryId as string) || undefined
     const sort = data.sort as string
 
-    const { products, pagination,searchBy } = await getProducts(
+    const { products, pagination, searchBy } = await getProducts(
       page,
       limit,
       maxPrice,
@@ -65,7 +64,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
         message: '  Products retrieved successfully!',
         payload: products,
         pagination,
-        searchBy
+        searchBy,
       })
     }
   } catch (error) {
@@ -125,10 +124,7 @@ export const updateProductBySlug = async (req: Request, res: Response, next: Nex
     const { slug } = params
     const data = body
 
-    // replace the old image with the new image in the file system
-    replaceImage(file, slug, data)
-
-    const product: productUpdateType = data && (await updateProduct(slug, data))
+    const product: productUpdateType = data && (await updateProduct(slug, data, file?.path!))
     if (!product) {
       throw createHTTPError(404, `Product with slug ${slug} does not exist`)
     }

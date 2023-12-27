@@ -10,6 +10,11 @@ import { Product } from '../models/productSchema'
 import { createHTTPError } from '../utils/createError'
 // Types
 import { productInputType, IProduct, productUpdateType } from '../types/productTypes'
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+  valueWithoutExtension,
+} from '../helper/cloudinary'
 
 // paginating products with a limit of 3 products per page
 export const getProducts = async (
@@ -62,7 +67,7 @@ export const getProducts = async (
     .populate('category', 'title')
     .sort({ price: sortBy })
 
-  return { products, pagination: { totalPages, currentPage: page, totalProducts: count } ,searchBy}
+  return { products, pagination: { totalPages, currentPage: page, totalProducts: count }, searchBy }
 }
 
 // getting a single product by slug
@@ -82,6 +87,7 @@ export const createNewProduct = async (product: IProduct, image: string | undefi
   if (isProductExist) {
     throw createHTTPError(409, `Product with title ${title} already exists`)
   }
+
   const slug = title && typeof title === 'string' && slugify(title, { lower: true })
   const newProduct = await Product.create({
     ...product,
@@ -93,29 +99,35 @@ export const createNewProduct = async (product: IProduct, image: string | undefi
     category: category,
   })
 
-  newProduct.save()
+  // to upload an image to Cloudinary and get the Cloudinary URL
+  const cloudinaryUrl = await uploadToCloudinary(newProduct.image, `sda-ecommerce/products`)
+
+  // adding the cloudinary url to
+  newProduct.image = cloudinaryUrl
+  // storing the user in the database
+  await newProduct.save()
   return newProduct
 }
 
 // updating product by slug
-export const updateProduct = async (slug: string, product: productUpdateType) => {
+export const updateProduct = async (slug: string, product: productUpdateType, image: string) => {
   const { title, quantity } = product
-
-  const isProductExist = await Product.exists({ slug: slug })
-  if (!isProductExist) {
-    throw createHTTPError(404, `Product with slug ${slug} does not exist`)
-  }
-
+  // will give the error only if admin try to update the title with the same title of another product title but if the admin update the title with the same title of the same product it will not give an error
   const oldProductValues = await Product.findOne({ slug: slug })
 
-  if (title === oldProductValues?.title) {
+  if (title && title !== oldProductValues?.title) {
     const isTitleExist = await Product.exists({ title: title })
     if (isTitleExist) {
       throw createHTTPError(409, `Product with title ${title} already exists`)
     }
+    const isProductExist = await Product.exists({ slug: slug })
+    if (!isProductExist) {
+      throw createHTTPError(404, `Product with slug ${slug} does not exist`)
+    }
   }
+
   if (oldProductValues) {
-    const newQuantity = quantity ? quantity + oldProductValues.quantity : oldProductValues.quantity
+    const newQuantity = quantity
     // Calculate new count in stock and sold units based on provided quantities
 
     const newCountInStock = newQuantity
@@ -128,7 +140,7 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
     const updateProduct = await Product.findOneAndUpdate(
       { slug: slug },
       {
-        quantity: newQuantity,
+        quantity: newQuantity ? newQuantity : oldProductValues.quantity,
         slug:
           title && typeof title === 'string' && title !== ''
             ? slugify(title, { lower: true })
@@ -138,29 +150,31 @@ export const updateProduct = async (slug: string, product: productUpdateType) =>
 
         title: title === '' ? oldProductValues.title : title,
         category: product.category ? product.category : oldProductValues.category,
-        description: product.description,
-        price: product.price,
-        image: product.image,
+        description: product.description ? product.description : oldProductValues.description,
+        price: product.price ? product.price : oldProductValues.price,
+        image: image,
       },
       { new: true }
     )
-    return updateProduct
-  }
-}
 
-// replacing the old image with the new image in the file system
-export const replaceImage = async (
-  file: Express.Multer.File | undefined,
-  slug: string,
-  data: productInputType
-) => {
-  if (file) {
-    data.image = file.path
-    // to delete the image from the public folder
-    const product = await findProduct(slug)
-    if (product.image !== 'public/images/default.png') {
-      fs.unlink(product.image)
+    // to upload an image to Cloudinary and get the Cloudinary URL
+    if (updateProduct && updateProduct.image) {
+      const cloudinaryUrl = await uploadToCloudinary(updateProduct.image, `sda-ecommerce/products`)
+      console.log('updateProduct.image', updateProduct.image)
+      // adding the cloudinary url to
+      updateProduct.image = cloudinaryUrl
+      console.log('updateProduct.image', updateProduct.image)
+      await updateProduct.save()
     }
+
+    // if the user has image then delete image from cloudinary
+    if (oldProductValues && oldProductValues.image) {
+      console.log('oldProductValues.image', oldProductValues.image)
+      const publicId = await valueWithoutExtension(oldProductValues.image)
+      await deleteFromCloudinary(`sda-ecommerce/products/${publicId}`)
+    }
+
+    return updateProduct
   }
 }
 
@@ -169,6 +183,13 @@ export const deleteProduct = async (slug: string) => {
   const isProductExist = await Product.exists({ slug: slug })
   if (!isProductExist) {
     throw createHTTPError(404, `Product with slug ${slug} does not exist`)
+  }
+  // if the user has image then delete image from cloudinary
+  const product = await Product.findOne({ slug: slug })
+  if (product && product.image) {
+    const publicId = await valueWithoutExtension(product.image)
+    console.log('publicId', publicId)
+    await deleteFromCloudinary(`sda-ecommerce/products/${publicId}`)
   }
 
   await Product.deleteOne({ slug: slug })

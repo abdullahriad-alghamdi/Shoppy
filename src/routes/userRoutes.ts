@@ -119,7 +119,7 @@ router.put('/role/:id', updateUserRole)
 router.get('/me', isLoggedIn, getMe)
 
 // PUT : /users/updateMe -> Update User profile By Slug
-router.put('/updateMe', isLoggedIn, uploadUserImg, updateMe)
+router.put('/updateMe/:id', uploadUserImg, updateMe)
 
 // POST : /users/forgot-password -> Process Forgot Password For User
 router.post('/forgot-password', forgotPassword)

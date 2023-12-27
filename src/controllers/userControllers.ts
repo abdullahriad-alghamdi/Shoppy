@@ -144,23 +144,51 @@ export const getMe = async (req: CustomRequest, res: Response, next: NextFunctio
 }
 
 // Put: /users/:slug -> Update user profile
-export const updateMe = async (req: CustomRequest, res: Response, next: NextFunction) => {
-  const { user_id } = req
-  const user = await User.findById(user_id)
-  const file = req.file
-  const img = file?.path
-  const data = req.body
+// export const updateMe = async (req: CustomRequest, res: Response, next: NextFunction) => {
+//   const { user_id } = req
+//   const user = await User.findById(user_id)
+//   const file = req.file
+//   const img = file?.path
+//   const data = req.body
 
-  if (img && user?.image) {
-    fs.unlinkSync(user.image)
+//   // if (img && user?.image) {
+//   //   fs.unlinkSync(user.image)
+//   // }
+//   const userUpdated = await updateUserProfile(user_id, data, img)
+//   res.status(200).json({
+//     message: 'Update user profile successfully',
+//     payload: userUpdated,
+//   })
+// }
+
+export const updateMe = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params
+    const data = req.body
+
+    const isUserExist = User.findById(id)
+    if (!isUserExist) {
+      throw new Error('User not found')
+    }
+
+    const userUpdated = await updateUserProfile(id, data)
+    res.status(200).json({
+      message: 'Update user profile successfully',
+      payload: userUpdated,
+    })
+  } catch (error) {
+    if (error instanceof Error.ValidationError) {
+      const errorMessages = Object.values(error.errors).map((error) => error.message)
+      res.status(400).json({ errors: errorMessages })
+      next(createHTTPError(400, errorMessages.join(', ')))
+    } else if (error instanceof Error.CastError) {
+      const errorMessage = 'Invalid user id'
+      next(createHTTPError(400, errorMessage))
+    } else {
+      return next(error)
+    }
   }
-  const userUpdated = await updateUserProfile(user_id, data, img)
-  res.status(200).json({
-    message: 'Update user profile successfully',
-    payload: userUpdated,
-  })
 }
-
 /**========================
  **      Admin controllers
  *=========================**/
