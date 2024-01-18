@@ -25,7 +25,7 @@ export const loginUser = async (req: CustomRequest, res: Response, next: NextFun
     const user = await login(email, password)
 
     // create access token
-    const accessToken = jwt.sign({ _id: user._id }, dev.app.jwtUserAccessKey, {
+    const accessToken = jwt.sign({ _id: user._id }, dev.app.jwtKey, {
       expiresIn: '30m',
     } as jwt.SignOptions)
 

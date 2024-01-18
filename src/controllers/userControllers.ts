@@ -17,14 +17,12 @@ import User from '../models/userSchema'
 import { userUpdateType } from '../types/userTypes'
 
 // Configuration
-import { dev } from '../config'
 
 // Utils
 import { createHTTPError } from '../utils/createError'
 
 // Helpers
 import { handelSendEmail } from '../helper/sendEmail'
-import { createJSONWebToken, verifyJSONWebToken } from '../helper/jwtHelper'
 // Services
 import {
   deleteUser,

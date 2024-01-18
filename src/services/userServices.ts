@@ -280,7 +280,7 @@ export const registeringUser = async (user: IUser, imagePath: string | undefined
     tokenPayload.image = cloudinaryUrl
 
     // create token
-    const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
+    const token = createJSONWebToken(tokenPayload, dev.app.jwtKey, '10m')
 
     // create email data with url and token
     const emailData = {
@@ -310,7 +310,7 @@ export const activatingUser = async (token: string) => {
       throw createHTTPError(404, 'Please provide a token')
     }
 
-    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey)
+    const decoded = verifyJSONWebToken(token, dev.app.jwtKey)
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }
@@ -344,7 +344,7 @@ export const resetMyPasswordProcess = async (email: string) => {
     }
 
     // create token
-    const token = createJSONWebToken(tokenPayload, dev.app.jwtUserActivationKey, '10m')
+    const token = createJSONWebToken(tokenPayload, dev.app.jwtKey, '10m')
 
     // create email data with url and token
     const emailData = {
@@ -376,7 +376,7 @@ export const resetThePassword = async (token: string, password: string) => {
       throw createHTTPError(404, 'Please provide a token')
     }
 
-    const decoded = verifyJSONWebToken(token, dev.app.jwtUserActivationKey)
+    const decoded = verifyJSONWebToken(token, dev.app.jwtKey)
     if (!decoded) {
       throw createHTTPError(404, 'Invalid token')
     }

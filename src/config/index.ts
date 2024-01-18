@@ -5,10 +5,9 @@ import 'dotenv/config'
 export const dev = {
   app: {
     port: Number(process.env.PORT) || Number(''),
-    defaultProductImagePath: process.env.DEFAULT_PRODUCT_IMAGE_PATH|| '',
-    defaultUserImagePath: process.env.DEFAULT_USER_IMAGE_PATH|| '',
-    jwtUserActivationKey: process.env.JWT_KEY || '',
-    jwtUserAccessKey: process.env.JWT_KEY || '',
+    defaultProductImagePath: process.env.DEFAULT_PRODUCT_IMAGE_PATH || '',
+    defaultUserImagePath: process.env.DEFAULT_USER_IMAGE_PATH || '',
+    jwtKey: process.env.JWT_KEY || '',
     smtpUsername: process.env.SMTP_USERNAME || '',
     smtpPassword: process.env.SMTP_PASSWORD || '',
   },
