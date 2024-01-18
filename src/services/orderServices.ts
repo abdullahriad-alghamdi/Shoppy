@@ -1,12 +1,10 @@
 /*======= Internal Modules or Files =======*/
 // Models
-import e from 'express'
 import { Order } from '../models/orderSchema'
 // Types
 import { IOrder, orderUpdateType } from '../types/orderTypes'
 // Utils
 import { createHTTPError } from '../utils/createError'
-import { updateProduct } from './productServices'
 
 /** ======================
  **     User Services
@@ -60,16 +58,19 @@ export const userOrder = async (user_id: string, orderId: string) => {
 // get all users orders for admin
 export const allOrders = async () => {
   const orders = await Order.find()
-    .populate('buyer', 'name username -_id ')
-    .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
+    .populate('buyer', 'name username _id')
+    .populate({ path: 'products', populate: { path: 'product', select: 'title price ' } })
   return orders
 }
 
 // get a specific user orders
 export const SingleOrder = async (id: string) => {
   const order = await Order.findById(id)
-    .populate('buyer', 'name username -_id ')
-    .populate({ path: 'products', populate: { path: 'product', select: 'title price' } })
+    .populate('buyer', 'name username _id ')
+    .populate({
+      path: 'products',
+      populate: { path: 'product' },
+    })
   if (!order) {
     throw createHTTPError(404, `Order with id: ${id} does not exist`)
   }
