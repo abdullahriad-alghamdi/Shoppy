@@ -22,7 +22,7 @@ import cookieParser from 'cookie-parser'
 
 const app: Application = express()
 
-// connectDB()
+connectDB()
 
 // Use middlewares
 app.use(morgan('dev'))
@@ -30,26 +30,27 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 // app.use(myLogger)
 app.use(cookieParser())
-// app.use(
-//   cors({
-//     origin: dev.corsOrigin,
-//     credentials: true,
-//   })
-// )
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://shoppyecom.netlify.app')
-  res.header('Access-Control-Allow-Credentials', 'true')
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-
-  connectDB() // connect mongo database
-  next()
-})
 app.use(
   cors({
-    origin: 'https://shoppyecom.netlify.app',
+    origin: dev.corsOrigin,
     credentials: true,
   })
 )
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', 'https://shoppyecom.netlify.app')
+//   res.header('Access-Control-Allow-Credentials', 'true')
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+
+//   connectDB() // connect mongo database
+//   next()
+// })
+// app.use(
+//   cors({
+//     origin: 'https://shoppyecom.netlify.app',
+//     credentials: true,
+//   })
+// )
 
 // Use routes
 app.use('/public', express.static('public'))
