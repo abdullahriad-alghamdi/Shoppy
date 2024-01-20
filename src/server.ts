@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://shoppyecom.netlify.app')
+  res.header('Access-Control-Allow-Origin', 'https://shoppy-eco.vercel.app')
   res.header('Access-Control-Allow-Credentials', 'true')
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
 
@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 })
 app.use(
   cors({
-    origin: 'https://shoppyecom.netlify.app',
+    origin: 'https://shoppy-eco.vercel.app',
     credentials: true,
   })
 )
