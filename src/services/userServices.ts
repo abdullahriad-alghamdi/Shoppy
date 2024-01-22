@@ -356,7 +356,7 @@ export const resetMyPasswordProcess = async (email: string) => {
         <div style="max-width: 400px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
           <h1 style="color: #007f7f; font-size: 28px; font-weight: bold; margin-bottom: 20px;">Reset Your Password</h1>
           <p style="font-size: 16px; margin-bottom: 30px;">Please click the button below to reset your password.</p>
-          <a href=${dev.corsOrigin}/resetPassword/${token}" style="display: inline-block; padding: 12px 24px; background-color: #007f7f; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; transition: background-color 0.3s ease;">Reset Password</a>
+          <a href="${dev.corsOrigin}/resetPassword/${token}" style="display: inline-block; padding: 12px 24px; background-color: #007f7f; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; transition: background-color 0.3s ease;">Reset Password</a>
           <p style="font-size: 14px; color: #888; margin-top: 20px;">If you did not request this, please ignore this email.</p>
         </div>
       </div>
